@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Negócios Fiori | Cyber Edition</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React e Babel -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Bibliotecas PDF e Imagem -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Google Fonts: Orbitron (Cyberpunk) & Roboto -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap');
+        
+        body { font-family: 'Roboto', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .font-cyber { font-family: 'Orbitron', sans-serif; }
+
+        /* Efeitos Neon */
+        .neon-blue { text-shadow: 0 0 10px rgba(59, 130, 246, 0.7); }
+        .neon-yellow { text-shadow: 0 0 10px rgba(234, 179, 8, 0.7); }
+        .neon-green { text-shadow: 0 0 10px rgba(34, 197, 94, 0.7); }
+        .box-neon { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); }
+        
+        /* Grid de Fundo */
+        .cyber-grid {
+            background-image: 
+                linear-gradient(rgba(30, 41, 59, 0.8) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 41, 59, 0.8) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center;
+        }
+
+        /* Inputs Editáveis */
+        .edit-input {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #3b82f6;
+            border-radius: 4px;
+            text-align: right;
+            font-size: 0.875rem;
+            color: #e2e8f0;
+            background: #1e293b;
+        }
+
+        /* Animações */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanline::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 255, 255, 0.02) 51%, transparent 52%);
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+        }
+
+        /* Impressão Limpa (Fundo Branco) */
+        @media print {
+            @page { margin: 0.5cm; size: A4; }
+            body { background: white; color: black; font-family: 'Roboto', sans-serif; }
+            .cyber-grid, .scanline { background: none !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .box-neon { box-shadow: none !important; border: 1px solid #ccc !important; }
+            table { font-size: 11px; width: 100%; color: black; }
+            th { background-color: #f3f4f6 !important; color: black !important; }
+            td { color: black !important; border-color: #e5e7eb !important; }
+            th, td { padding: 4px 4px !important; }
+            a { text-decoration: none; color: black !important; }
+            tr { page-break-inside: avoid; }
+            .neon-text-print { color: #dc2626 !important; text-shadow: none !important; } /* FIAT Vermelho na impressão */
+            input { border: none; background: transparent; text-align: right; width: auto; color: black; }
+        }
+    </style>
+</head>
+<body class="cyber-grid min-h-screen relative overflow-x-hidden">
+    
+    <!-- Efeito Scanline -->
+    <div class="fixed inset-0 pointer-events-none scanline z-0"></div>
+
+    <div id="root" class="relative z-10"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect, useRef } = React;
+
+        // --- ÍCONES ---
+        const Icons = {
+            Phone: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>,
+            Mail: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>,
+            Search: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>,
+            Printer: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>,
+            Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>,
+            MessageCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>,
+            FileText: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>,
+            ChevronDown: () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"></path></svg>,
+            ChevronUp: () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"></path></svg>,
+            Edit: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>,
+            Save: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>,
+            Refresh: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>,
+            Taxi: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>,
+            Pcd: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 9a2 2 0 1 1 2 2"/><path d="M12 11v6"/><path d="M8 17h8"/></svg>,
+            Grid: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg>,
+            Plus: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>,
+            Car: () => <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>,
+            DollarSign: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>,
+            Calendar: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>,
+            User: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>,
+            ImageIcon: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>,
+            Palette: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21a6 6 0 0 0 6-6c0-1-1-2-2-2h-1.5a3 3 0 0 1-3-3V7a3 3 0 0 0-3-3 6 6 0 1 0 0 17z"></path></svg>
+        };
+
+        // --- DADOS INICIAIS ---
+        const initialTaxiData = [
+            { id: 1, modelo: "MOBI LIKE", publico: 86350.00, taxi: 66014.00 },
+            { id: 2, modelo: "MOBI TREKKING", publico: 85780.00, taxi: 67939.00 },
+            { id: 3, modelo: "ARGO DRIVE 1.0", publico: 97780.00, taxi: 80024.00 },
+            { id: 4, modelo: "ARGO TREKKING 1.3 MT", publico: 103780.00, taxi: 85743.00 },
+            { id: 5, modelo: "ARGO DRIVE 1.3 AT", publico: 108980.00, taxi: 89874.00 },
+            { id: 6, modelo: "ARGO TREKKING AT", publico: 111780.00, taxi: 92352.00 },
+            { id: 7, modelo: "CRONOS DRIVE 1.0", publico: 109980.00, taxi: 81243.00 },
+            { id: 8, modelo: "CRONOS DRIVE 1.3 MT", publico: 114980.00, taxi: 83905.00 },
+            { id: 9, modelo: "CRONOS DRIVE 1.3 AT", publico: 119980.00, taxi: 92586.00 },
+            { id: 10, modelo: "CRONOS DRIVE 1.3 AT KIT SD", publico: 123960.00, taxi: 95742.00 },
+            { id: 11, modelo: "CRONOS PRECISION", publico: 125980.00, taxi: 94046.00 },
+            { id: 12, modelo: "PULSE DRIVE 1.3 MT", publico: 103980.00, taxi: 85472.00 },
+            { id: 13, modelo: "PULSE DRIVE 1.3 AT", publico: 115980.00, taxi: 88526.00 },
+            { id: 14, modelo: "PULSE DRIVE 1.0 AT", publico: 119980.00, taxi: 95823.00 },
+            { id: 15, modelo: "PULSE AUDACE HYBRID", publico: 136980.00, taxi: 100292.00 },
+            { id: 16, modelo: "PULSE IMPETUS HYBRID", publico: 150980.00, taxi: 114270.00 },
+            { id: 17, modelo: "FASTBACK T200", publico: 119990.00, taxi: 99823.00 },
+            { id: 18, modelo: "FASTBACK AUDACE HYBRID", publico: 166980.00, taxi: 121566.00 },
+            { id: 19, modelo: "FASTBACK IMPETUS HYBRID", publico: 172980.00, taxi: 135039.00 },
+            { id: 20, modelo: "FASTBACK LIMITED EDITION", publico: 176989.00, taxi: 136985.00 },
+            { id: 21, modelo: "FASTBACK ABARTH", publico: 182980.00, taxi: 146990.00 },
+        ];
+
+        const initialPcdData = [
+            { id: 1, modelo: "MOBI LIKE", publico: 82560.00, taxi: 73047.00 },
+            { id: 2, modelo: "MOBI TREKKING", publico: 84990.00, taxi: 75441.00 },
+            { id: 3, modelo: "ARGO DRIVE 1.0", publico: 96790.00, taxi: 87064.00 },
+            { id: 4, modelo: "ARGO TREKKING 1.3 MT", publico: 102790.00, taxi: 84743.00 },
+            { id: 5, modelo: "ARGO DRIVE 1.3 CVT", publico: 107790.00, taxi: 86401.00 },
+            { id: 6, modelo: "ARGO TREKKING 1.3 CVT", publico: 110790.00, taxi: 89018.00 },
+            { id: 7, modelo: "CRONOS DRIVE 1.0 MT", publico: 108990.00, taxi: 91416.00 },
+            { id: 8, modelo: "CRONOS DRIVE 1.3 MT", publico: 113990.00, taxi: 92315.00 },
+            { id: 9, modelo: "CRONOS DRIVE 1.3 CVT", publico: 118990.00, taxi: 94059.00 },
+            { id: 10, modelo: "PULSE DRIVE MT 1.3 CVT", publico: 102990.00, taxi: 88538.00 },
+            { id: 11, modelo: "PULSE DRIVE AT 1.3 CVT", publico: 114990.00, taxi: 97266.00 },
+            { id: 12, modelo: "PULSE DRIVE AT 1.0 CVT", publico: 118990.00, taxi: 98892.00 },
+            { id: 13, modelo: "FASTBACK T200", publico: 119990.00, taxi: 103705.90 },
+        ];
+
+        const managerInfo = {
+            name: "Amanda Souza dos Santos",
+            role: "Gerente de Negócios",
+            phone: "71982468215",
+            phoneDisplay: "(71) 98246-8215",
+            email: "amanda.santos@fiori.com.br"
+        };
+
+        const docsTaxiCompra = ["IPI", "ICMS", "CNH (E.A.R)", "Comprovante de Residência"];
+        const docsTaxiIsencao = ["Alvará", "CNH", "Endereço atualizado", "Declaração do INSS (motorista de táxi)", "Declaração da prefeitura", "Senha GOV (IPI)"];
+        const docsPcd = [
+            "Laudo Médico escaneado (original) do Detran ou do SUS", "RG e CPF ou CNH do requerente escaneado",
+            "CNH dos condutores escaneados", "Comprovante de Endereço atualizado", "Senha do GOV",
+            "Comprovante de renda (min. 3 salários)", "Procuração assinada e com firma reconhecida", "Imposto de renda (2 últimos)"
+        ];
+
+        function App() {
+            // --- ESTADOS GERAIS ---
+            const [view, setView] = useState("dashboard"); // 'dashboard', 'taxi', 'pcd', 'quote'
+            const [searchTerm, setSearchTerm] = useState("");
+            const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+            const [isGenerating, setIsGenerating] = useState(false);
+            const [isEditing, setIsEditing] = useState(false);
+            const [selectedDate, setSelectedDate] = useState("2026-01");
+            const [taxiData, setTaxiData] = useState(initialTaxiData);
+            const [pcdData, setPcdData] = useState(initialPcdData);
+
+            // --- ESTADOS GERADOR DE COTAÇÕES ---
+            const [quoteMode, setQuoteMode] = useState('quote'); // 'quote' or 'card'
+            const quoteRef = useRef(null);
+            const cardRef = useRef(null);
+            const [quoteForm, setQuoteForm] = useState({
+                city: 'Salvador',
+                date: new Date().toISOString().split('T')[0], // Data de hoje
+                providerName: 'STELLANTIS AUTOMOVEIS BRASIL LTDA',
+                providerCnpj: '16.701.716/0001-56',
+                clientName: '',
+                clientCnpj: '',
+                vehicleModel: '',
+                vehicleColor: '',
+                vehicleOptionals: 'ITENS DE SERIE',
+                pricePublic: '',
+                priceCnpj: '',
+                finameCode: '',
+                sellerName: managerInfo.name,
+                sellerPhone: managerInfo.phoneDisplay,
+                sellerTitle: managerInfo.role,
+                sellerEmail: managerInfo.email
+            });
+
+            // Carregar dados salvos
+            useEffect(() => {
+                const savedTaxi = localStorage.getItem('fiori_taxi_data');
+                const savedPcd = localStorage.getItem('fiori_pcd_data');
+                const savedDate = localStorage.getItem('fiori_date');
+
+                if (savedTaxi) setTaxiData(JSON.parse(savedTaxi));
+                if (savedPcd) setPcdData(JSON.parse(savedPcd));
+                if (savedDate) setSelectedDate(savedDate);
+            }, []);
+
+            // Salvar dados
+            const handleSave = () => {
+                localStorage.setItem('fiori_taxi_data', JSON.stringify(taxiData));
+                localStorage.setItem('fiori_pcd_data', JSON.stringify(pcdData));
+                localStorage.setItem('fiori_date', selectedDate);
+                setIsEditing(false);
+                alert("Dados salvos no sistema.");
+            };
+
+            const handleReset = () => {
+                if(confirm("Deseja restaurar os valores originais de Janeiro/2026?")) {
+                    setTaxiData(initialTaxiData);
+                    setPcdData(initialPcdData);
+                    localStorage.removeItem('fiori_taxi_data');
+                    localStorage.removeItem('fiori_pcd_data');
+                }
+            };
+
+            const handlePriceChange = (id, field, value) => {
+                const newData = (view === 'taxi' ? taxiData : pcdData).map(item => {
+                    if (item.id === id) return { ...item, [field]: parseFloat(value) };
+                    return item;
+                });
+                view === 'taxi' ? setTaxiData(newData) : setPcdData(newData);
+            };
+
+            const getFormattedDate = () => {
+                const [year, month] = selectedDate.split('-');
+                const date = new Date(parseInt(year), parseInt(month) - 1);
+                const monthName = date.toLocaleString('pt-BR', { month: 'long' });
+                return `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} / ${year}`;
+            };
+            
+            const getShortYear = () => selectedDate.split('-')[0];
+            const formatMoney = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+            const requestSort = (key) => {
+                let direction = 'ascending';
+                if (sortConfig.key === key && sortConfig.direction === 'ascending') direction = 'descending';
+                setSortConfig({ key, direction });
+            };
+
+            const currentData = view === 'taxi' ? taxiData : pcdData;
+            const processedData = useMemo(() => {
+                let data = [...currentData];
+                if (searchTerm) data = data.filter(item => item.modelo.toLowerCase().includes(searchTerm.toLowerCase()));
+                if (sortConfig.key) {
+                    data.sort((a, b) => {
+                        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'ascending' ? -1 : 1;
+                        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'ascending' ? 1 : -1;
+                        return 0;
+                    });
+                }
+                return data;
+            }, [searchTerm, sortConfig, currentData]);
+
+            // PDF e Impressão (Tabelas)
+            const handleNativePrint = () => window.print();
+            const handleDownloadPDF = () => {
+                setIsGenerating(true);
+                const element = document.getElementById('printable-area');
+                const wasEditing = isEditing;
+                if(wasEditing) setIsEditing(false);
+                setTimeout(() => {
+                    const opt = {
+                        margin: [5, 5, 5, 5], 
+                        filename: `Tabela_${view.toUpperCase()}_Fiori_${selectedDate}.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true, logging: false },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+                    html2pdf().set(opt).from(element).save().then(() => {
+                        setIsGenerating(false);
+                        if(wasEditing) setIsEditing(true);
+                    }).catch(err => { setIsGenerating(false); if(wasEditing) setIsEditing(true); });
+                }, 100);
+            };
+
+            const getWppLink = (modelo) => {
+                const tipo = view === 'taxi' ? 'Taxi' : 'PCD';
+                const text = `Olá Amanda, tenho interesse no *${modelo}* conforme a tabela ${tipo} de ${getFormattedDate()}.`;
+                return `https://wa.me/55${managerInfo.phone}?text=${encodeURIComponent(text)}`;
+            };
+
+            // --- FUNÇÕES DO GERADOR DE COTAÇÕES ---
+            const handleQuoteChange = (e) => {
+                const { name, value } = e.target;
+                setQuoteForm(prev => ({ ...prev, [name]: value }));
+            };
+
+            const getQuoteDate = () => {
+                if (!quoteForm.date) return '';
+                const dateObj = new Date(quoteForm.date);
+                const userTimezoneOffset = dateObj.getTimezoneOffset() * 60000;
+                const adjustedDate = new Date(dateObj.getTime() + userTimezoneOffset);
+                return adjustedDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+            };
+
+            const handleDownloadQuotePDF = () => {
+                if (quoteRef.current && window.html2pdf) {
+                    const element = quoteRef.current;
+                    const opt = {
+                        margin: 0,
+                        filename: `Cotacao_${quoteForm.clientName.substring(0, 10).trim()}_${quoteForm.date}.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+                    window.html2pdf().set(opt).from(element).save();
+                } else {
+                    alert("Biblioteca PDF carregando ou erro. Tente novamente.");
+                }
+            };
+
+            const handleDownloadQuoteCard = async () => {
+                if (cardRef.current && window.html2canvas) {
+                    try {
+                        const canvas = await window.html2canvas(cardRef.current, {
+                            scale: 3, 
+                            backgroundColor: '#ffffff', 
+                            logging: false, 
+                            useCORS: true, 
+                            allowTaint: true, 
+                            // IMPORTANTE: Definir largura e altura explícitas para o canvas baseado no elemento
+                            width: 500,
+                            height: 500,
+                            scrollX: 0, 
+                            scrollY: 0,
+                            windowWidth: 1000 // Força uma viewport virtual larga
+                        });
+                        const link = document.createElement('a');
+                        link.download = `Oferta_${quoteForm.vehicleModel.substring(0, 10).trim()}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    } catch (err) { alert("Erro ao gerar imagem."); console.error(err); }
+                } else { alert("Biblioteca Imagem carregando. Tente novamente."); }
+            };
+
+            // --- VIEW: DASHBOARD ---
+            if (view === 'dashboard') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+                        <div className="mb-12 animate-pulse">
+                            <h1 className="font-cyber text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-yellow-400 neon-blue tracking-wider mb-2">
+                                PAINEL FIORI
+                            </h1>
+                            <p className="text-slate-400 font-mono tracking-[0.5em] text-sm md:text-base">GESTÃO DE VENDAS INTELIGENTE</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
+                            {/* Card Taxi */}
+                            <div 
+                                onClick={() => setView('taxi')}
+                                className="group cursor-pointer bg-slate-900/80 backdrop-blur-md border border-yellow-500/30 p-8 rounded-2xl hover:border-yellow-400 hover:shadow-[0_0_30px_rgba(234,179,8,0.3)] transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition duration-500">
+                                    <Icons.Taxi />
+                                </div>
+                                <h2 className="font-cyber text-3xl font-bold text-yellow-400 mb-4 group-hover:neon-yellow">TABELA TAXI</h2>
+                                <p className="text-slate-400 text-sm leading-relaxed">Acesso completo à tabela com isenção de IPI e ICMS para taxistas. Cálculo automático de descontos e documentos.</p>
+                                <div className="mt-6 flex items-center text-yellow-500 font-bold text-sm tracking-widest group-hover:translate-x-2 transition-transform">
+                                    ACESSAR MÓDULO &rarr;
+                                </div>
+                            </div>
+
+                            {/* Card PCD */}
+                            <div 
+                                onClick={() => setView('pcd')}
+                                className="group cursor-pointer bg-slate-900/80 backdrop-blur-md border border-blue-500/30 p-8 rounded-2xl hover:border-blue-400 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition duration-500">
+                                    <Icons.Pcd />
+                                </div>
+                                <h2 className="font-cyber text-3xl font-bold text-blue-400 mb-4 group-hover:neon-blue">TABELA PCD</h2>
+                                <p className="text-slate-400 text-sm leading-relaxed">Módulo exclusivo para PcD. Valores ajustados, lista de laudos e documentação necessária para isenções.</p>
+                                <div className="mt-6 flex items-center text-blue-500 font-bold text-sm tracking-widest group-hover:translate-x-2 transition-transform">
+                                    ACESSAR MÓDULO &rarr;
+                                </div>
+                            </div>
+
+                            {/* Card Gerador de Cotações (NOVO) */}
+                            <div 
+                                onClick={() => setView('quote')}
+                                className="group cursor-pointer bg-slate-900/80 backdrop-blur-md border border-green-500/30 p-8 rounded-2xl hover:border-green-400 hover:shadow-[0_0_30px_rgba(34,197,94,0.3)] transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition duration-500">
+                                    <Icons.FileText />
+                                </div>
+                                <h2 className="font-cyber text-3xl font-bold text-green-400 mb-4 group-hover:neon-green">GERADOR COTAÇÕES</h2>
+                                <p className="text-slate-400 text-sm leading-relaxed">Ferramenta para criar propostas em PDF e cards promocionais para Instagram/WhatsApp instantaneamente.</p>
+                                <div className="mt-6 flex items-center text-green-500 font-bold text-sm tracking-widest group-hover:translate-x-2 transition-transform">
+                                    ACESSAR MÓDULO &rarr;
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-16 text-slate-600 font-mono text-xs">
+                            SISTEMA FIORI V2.0 | DEVELOPED FOR AMANDA SOUZA
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- VIEW: GERADOR DE COTAÇÕES ---
+            if (view === 'quote') {
+                return (
+                    <div className="min-h-screen flex flex-col md:flex-row print:bg-white text-gray-800 font-sans">
+                        {/* EDITOR PANEL (Esquerda) */}
+                        <div className="w-full md:w-1/3 bg-slate-50 border-r border-gray-200 p-6 overflow-y-auto h-auto md:h-screen shadow-lg z-10 print:hidden relative">
+                            {/* Botão Voltar */}
+                            <button 
+                                onClick={() => setView('dashboard')}
+                                className="absolute top-4 right-4 bg-slate-200 hover:bg-slate-300 rounded-full p-2 text-slate-600 transition"
+                                title="Voltar ao Painel"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                            </button>
+
+                            <div className="mb-6 border-b pb-4">
+                                <h1 className="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                                    <Icons.Car className="w-6 h-6" />
+                                    Gerador Fiat
+                                </h1>
+                                <p className="text-sm text-gray-500 mt-1">Ferramenta de vendas corporativas.</p>
+                            </div>
+
+                            {/* Mode Selector */}
+                            <div className="flex p-1 bg-gray-200 rounded-lg mb-6">
+                                <button 
+                                    onClick={() => setQuoteMode('quote')}
+                                    className={`flex-1 py-2 px-3 rounded-md text-sm font-bold flex items-center justify-center gap-2 transition-all ${quoteMode === 'quote' ? 'bg-white shadow text-blue-900' : 'text-gray-500 hover:bg-gray-300'}`}
+                                >
+                                    <Icons.FileText className="w-4 h-4" /> Documento
+                                </button>
+                                <button 
+                                    onClick={() => setQuoteMode('card')}
+                                    className={`flex-1 py-2 px-3 rounded-md text-sm font-bold flex items-center justify-center gap-2 transition-all ${quoteMode === 'card' ? 'bg-white shadow text-red-600' : 'text-gray-500 hover:bg-gray-300'}`}
+                                >
+                                    <Icons.ImageIcon className="w-4 h-4" /> Card Promo
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {/* Veículo e Preços */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1">
+                                        <Icons.Car className="w-3 h-3" /> Veículo e Preços
+                                    </label>
+                                    <textarea
+                                        name="vehicleModel"
+                                        value={quoteForm.vehicleModel}
+                                        onChange={handleQuoteChange}
+                                        className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none h-20"
+                                        placeholder="Modelo do Veículo (Ex: STRADA FREEDOM...)"
+                                    />
+                                    <div className="flex items-center gap-2 bg-white p-2 rounded border border-gray-200">
+                                        <Icons.Palette className="w-4 h-4 text-gray-500" />
+                                        <input
+                                            type="text"
+                                            name="vehicleColor"
+                                            value={quoteForm.vehicleColor}
+                                            onChange={handleQuoteChange}
+                                            className="w-full bg-transparent text-sm focus:outline-none"
+                                            placeholder="Cor (Ex: GRANITE CRYSTAL)"
+                                        />
+                                    </div>
+                                    {quoteMode === 'quote' && (
+                                        <input
+                                            type="text"
+                                            name="vehicleOptionals"
+                                            value={quoteForm.vehicleOptionals}
+                                            onChange={handleQuoteChange}
+                                            className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            placeholder="Opcionais (ex: Itens de Série)"
+                                        />
+                                    )}
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-[10px] text-gray-400">Preço Público (R$)</label>
+                                            <input type="text" name="pricePublic" value={quoteForm.pricePublic} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="0,00" />
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] text-gray-400">Preço CNPJ (R$)</label>
+                                            <input type="text" name="priceCnpj" value={quoteForm.priceCnpj} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-bold text-blue-900" placeholder="0,00" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Campos específicos de Cotação */}
+                                {quoteMode === 'quote' && (
+                                    <>
+                                        <div className="space-y-2 pt-2 border-t border-gray-200">
+                                            <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1">
+                                                <Icons.Calendar className="w-3 h-3" /> Data e Local
+                                            </label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <input type="text" name="city" value={quoteForm.city} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Cidade" />
+                                                <input type="date" name="date" value={quoteForm.date} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2 pt-2 border-t border-gray-200">
+                                            <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1">
+                                                <Icons.User className="w-3 h-3" /> Dados do Cliente
+                                            </label>
+                                            <input type="text" name="clientName" value={quoteForm.clientName} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nome do Cliente" />
+                                            <input type="text" name="clientCnpj" value={quoteForm.clientCnpj} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="CNPJ / CPF" />
+                                        </div>
+                                        <div className="pt-2">
+                                            <label className="text-[10px] text-gray-400">Código Finame</label>
+                                            <input type="text" name="finameCode" value={quoteForm.finameCode} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: 04260579" />
+                                        </div>
+                                    </>
+                                )}
+
+                                {/* Vendedor */}
+                                <div className="space-y-2 pt-2 border-t border-gray-200">
+                                    <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1">
+                                        <Icons.FileText className="w-3 h-3" /> Assinatura
+                                    </label>
+                                    <input type="text" name="sellerName" value={quoteForm.sellerName} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nome" />
+                                    <input type="text" name="sellerTitle" value={quoteForm.sellerTitle} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Cargo" />
+                                    <input type="text" name="sellerPhone" value={quoteForm.sellerPhone} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Telefone" />
+                                </div>
+
+                                <button
+                                    onClick={quoteMode === 'quote' ? handleDownloadQuotePDF : handleDownloadQuoteCard}
+                                    className={`w-full mt-6 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2 shadow-md transition-colors ${quoteMode === 'quote' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-900 hover:bg-blue-800'}`}
+                                >
+                                    <Icons.Download className="w-5 h-5" />
+                                    {quoteMode === 'quote' ? 'Baixar PDF' : 'Baixar Imagem'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* PREVIEW PANEL (Direita) */}
+                        <div className="flex-1 p-8 overflow-y-auto bg-gray-300 flex justify-center items-start print:p-0 print:bg-white print:block print:w-full print:h-auto">
+                            
+                            {/* --- MODO: COTAÇÃO PDF --- */}
+                            {quoteMode === 'quote' && (
+                                <div ref={quoteRef} className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] p-[15mm] md:p-[20mm] relative text-black print:shadow-none print:w-full print:max-w-none print:h-auto">
+                                    <div className="mb-8">
+                                        <div className="flex flex-col items-start gap-1 mb-4">
+                                            <h1 className="text-4xl font-black text-red-600 tracking-tighter italic" style={{fontFamily: 'Arial Black, sans-serif'}}>FIAT</h1>
+                                            <h2 className="text-xs font-bold text-gray-800 tracking-wide">{quoteForm.providerName}</h2>
+                                        </div>
+                                    </div>
+                                    <div className="mb-8">
+                                        <p className="text-sm font-medium mb-4">{quoteForm.city}, {getQuoteDate()}</p>
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <h2 className="text-xl font-bold uppercase border-b-2 border-black inline-block mb-1">COTAÇÃO</h2>
+                                                <p className="text-xs font-bold text-gray-600">VENDAS CORPORATIVAS</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-xs font-bold text-gray-600">{quoteForm.providerCnpj}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="mb-8 border-l-4 border-gray-200 pl-4 py-1">
+                                        <p className="text-sm font-bold text-gray-800 mb-1">Prezado Sr(a):</p>
+                                        <p className="text-lg font-bold text-blue-900 uppercase leading-tight mb-2">{quoteForm.clientName}</p>
+                                        <p className="text-sm text-gray-600 font-mono">{quoteForm.clientCnpj}</p>
+                                    </div>
+                                    <div className="mb-6">
+                                        <p className="text-sm text-justify leading-relaxed text-gray-800">Conforme solicitado, temos a satisfação de apresentar para vossa apreciação os valores dos veículos direto de fábrica, abaixo discriminados com frete incluso:</p>
+                                    </div>
+                                    <div className="mb-6">
+                                        <table className="w-full border-collapse border border-black text-xs md:text-sm">
+                                            <thead className="bg-gray-100">
+                                                <tr>
+                                                    <th className="border border-black p-2 text-center w-12">QNT</th>
+                                                    <th className="border border-black p-2 text-left">MODELO</th>
+                                                    <th className="border border-black p-2 text-left">OPCIONAIS</th>
+                                                    <th className="border border-black p-2 text-right">PREÇO PÚBLICO</th>
+                                                    <th className="border border-black p-2 text-right bg-gray-200 font-bold">PREÇO CNPJ</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td className="border border-black p-3 text-center align-top">1</td>
+                                                    <td className="border border-black p-3 align-top font-bold text-blue-900">
+                                                        {quoteForm.vehicleModel.split('\n').map((line, i) => <div key={i}>{line}</div>)}
+                                                        {quoteForm.vehicleColor && <div className="mt-2 text-gray-700 font-normal"><span className="font-bold text-black text-xs uppercase">Cor:</span> {quoteForm.vehicleColor}</div>}
+                                                    </td>
+                                                    <td className="border border-black p-3 align-top text-gray-700">{quoteForm.vehicleOptionals}</td>
+                                                    <td className="border border-black p-3 text-right align-top font-medium">R$ {quoteForm.pricePublic}</td>
+                                                    <td className="border border-black p-3 text-right align-top font-bold bg-yellow-50 text-black">R$ {quoteForm.priceCnpj}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {quoteForm.finameCode && <div className="mb-8"><p className="text-sm font-bold">Código Finame {quoteForm.finameCode}</p></div>}
+                                    <div className="mb-12 border-t border-b border-gray-300 py-4">
+                                        <p className="text-xs font-bold text-center text-gray-600 uppercase">SALIENTAMOS QUE OS VALORES E PRAZOS PODERÃO SOFRER ALTERAÇÕES ATÉ A DATA DO FATURAMENTO CONFORME A POLÍTICA COMERCIAL DA FIAT.</p>
+                                    </div>
+                                    <div className="mt-auto">
+                                        <p className="text-sm font-bold uppercase mb-6">ATENCIOSAMENTE,</p>
+                                        <div className="inline-block">
+                                            <p className="text-lg font-bold text-gray-900">{quoteForm.sellerName}</p>
+                                            <p className="text-sm text-gray-700 mb-1">{quoteForm.sellerPhone}</p>
+                                            <p className="text-sm font-bold text-gray-500">{quoteForm.sellerTitle}</p>
+                                            <p className="text-sm text-blue-600 underline decoration-1">{quoteForm.sellerEmail}</p>
+                                        </div>
+                                    </div>
+                                    <div className="absolute bottom-4 right-6 text-[10px] text-gray-300 print:hidden">Documento gerado automaticamente</div>
+                                </div>
+                            )}
+
+                            {/* --- MODO: CARD PROMOCIONAL (CORRIGIDO) --- */}
+                            {quoteMode === 'card' && (
+                                <div className="flex items-center justify-center min-h-[600px] w-full overflow-x-auto">
+                                    {/* WRAPPER FIXO PARA PREVENIR QUEBRA */}
+                                    <div 
+                                        ref={cardRef} 
+                                        className="bg-white shadow-2xl relative flex flex-col flex-shrink-0" 
+                                        style={{ width: '500px', height: '500px', minWidth: '500px', minHeight: '500px', overflow: 'hidden' }}
+                                    >
+                                        {/* HEADER */}
+                                        <div className="bg-red-600 h-24 flex items-center justify-between px-8 relative overflow-hidden flex-shrink-0">
+                                            <div className="absolute -right-4 -top-4 w-32 h-32 bg-red-500 rounded-full opacity-50 blur-xl"></div>
+                                            <h1 className="text-5xl font-black text-white tracking-tighter italic z-10" style={{fontFamily: 'Arial Black, sans-serif'}}>FIAT</h1>
+                                            <div className="text-white text-right z-10">
+                                                <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Oferta Especial</p>
+                                                <p className="text-xs opacity-60">Vendas Corporativas</p>
+                                            </div>
+                                        </div>
+
+                                        {/* CONTENT (Com Safe Area e Centralização) */}
+                                        <div className="flex-1 p-8 flex flex-col justify-center relative overflow-hidden">
+                                            <Icons.Car className="absolute text-gray-100 w-64 h-64 -left-10 bottom-10 -rotate-12 z-0 opacity-80" strokeWidth={1} />
+                                            
+                                            <div className="z-10 relative flex flex-col gap-2">
+                                                {/* TÍTULO DO VEÍCULO */}
+                                                <h2 className="text-3xl font-black text-gray-800 leading-none mb-2 uppercase break-words" style={{ maxWidth: '100%', wordWrap: 'break-word' }}>
+                                                    {quoteForm.vehicleModel || "MODELO DO VEÍCULO"}
+                                                </h2>
+
+                                                {/* COR */}
+                                                {quoteForm.vehicleColor && (
+                                                    <p className="text-sm font-bold text-gray-500 uppercase mb-4 flex items-center gap-2">
+                                                        <span className="w-2 h-2 rounded-full bg-gray-400 inline-block"></span>
+                                                        {quoteForm.vehicleColor}
+                                                    </p>
+                                                )}
+
+                                                {/* BLOCO DE PREÇOS */}
+                                                <div className="space-y-4 mt-2">
+                                                    {/* Preço Público */}
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="text-xs font-bold text-gray-400 uppercase">De:</div>
+                                                        <span className="text-xl text-gray-400 font-medium line-through decoration-2 decoration-gray-400">
+                                                            R$ {quoteForm.pricePublic || "0,00"}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    {/* Preço CNPJ (Destaque) */}
+                                                    <div className="bg-blue-900 text-white p-4 rounded-xl shadow-lg transform origin-left w-full max-w-[90%]">
+                                                        <div className="flex flex-col">
+                                                            <div className="text-[10px] font-bold text-blue-200 uppercase mb-1">Por (CNPJ / Produtor Rural):</div>
+                                                            <div className="text-yellow-400 flex items-baseline gap-1">
+                                                                <span className="text-lg font-bold text-white">R$</span>
+                                                                <span className="text-5xl font-black tracking-tighter leading-none">
+                                                                    {quoteForm.priceCnpj || "0,00"}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* FOOTER */}
+                                        <div className="bg-gray-100 px-6 py-4 flex items-center justify-between border-t border-gray-200 flex-shrink-0 h-20">
+                                            <div>
+                                                <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Consulte Condições</p>
+                                                <p className="text-[9px] text-gray-400">Sujeito a alteração sem aviso prévio.</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-sm font-bold text-gray-900 leading-tight">{quoteForm.sellerName}</p>
+                                                <p className="text-xs font-bold text-red-600">{quoteForm.sellerPhone}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- VIEW: TABELAS (TAXI & PCD) ---
+            return (
+                <div className="min-h-screen pb-20">
+                    {/* NAV SUPERIOR */}
+                    <nav className="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50 no-print">
+                        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div 
+                                onClick={() => setView('dashboard')}
+                                className="flex items-center gap-3 cursor-pointer group"
+                            >
+                                <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center border border-slate-700 group-hover:border-blue-500 transition-colors">
+                                    <Icons.Grid />
+                                </div>
+                                <h1 className="font-cyber font-bold text-xl text-slate-200 group-hover:text-blue-400 transition-colors">
+                                    PAINEL <span className={view === 'taxi' ? 'text-yellow-500' : 'text-blue-500'}>{view.toUpperCase()}</span>
+                                </h1>
+                            </div>
+
+                            {/* Controles Principais */}
+                            <div className="flex items-center gap-4">
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-500">
+                                        <Icons.Search />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Filtrar modelo..."
+                                        className="bg-slate-950 border border-slate-700 text-slate-200 text-sm rounded-full pl-10 pr-4 py-2 w-48 focus:w-64 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                                
+                                <div className="h-8 w-[1px] bg-slate-700 mx-2 hidden md:block"></div>
+
+                                <button onClick={() => setView('dashboard')} className="text-xs font-mono text-slate-500 hover:text-white transition">
+                                    VOLTAR
+                                </button>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* BARRA DE FERRAMENTAS */}
+                    <div className="max-w-7xl mx-auto px-4 mt-8 mb-6 no-print">
+                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 box-neon">
+                            <div className="flex items-center gap-4">
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Período Vigente</span>
+                                    <input 
+                                        type="month" 
+                                        value={selectedDate}
+                                        onChange={(e) => setSelectedDate(e.target.value)}
+                                        className="bg-transparent text-slate-200 font-bold outline-none cursor-pointer hover:text-blue-400 transition"
+                                    />
+                                </div>
+                                <div className="w-[1px] h-8 bg-slate-800"></div>
+                                <button 
+                                    onClick={() => setIsEditing(!isEditing)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${isEditing ? 'bg-green-500/10 text-green-400 border border-green-500/50' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                                >
+                                    {isEditing ? <><Icons.Save className="w-4 h-4" /> Editando...</> : <><Icons.Edit className="w-4 h-4" /> Editar Valores</>}
+                                </button>
+                                {isEditing && (
+                                    <button onClick={handleSave} className="text-green-500 hover:text-green-400 text-xs font-mono animate-pulse">
+                                        [SALVAR]
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button onClick={handleReset} className="p-2 text-slate-500 hover:text-red-500 transition" title="Resetar Padrão"><Icons.Refresh /></button>
+                                <button onClick={handleNativePrint} className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border border-slate-700 transition">
+                                    <Icons.Printer /> Imprimir
+                                </button>
+                                <button onClick={handleDownloadPDF} disabled={isGenerating} className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-blue-900/50 flex items-center gap-2 transition transform hover:scale-105">
+                                    <Icons.Download /> {isGenerating ? 'Gerando...' : 'Baixar PDF'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ÁREA DE IMPRESSÃO / CONTEÚDO PRINCIPAL */}
+                    <div id="printable-area" className="max-w-6xl mx-auto bg-white text-slate-900 p-8 md:p-12 rounded-none md:rounded-sm shadow-2xl print:shadow-none print:p-0">
+                        
+                        {/* CABEÇALHO DO DOCUMENTO */}
+                        <header className={`border-b-4 ${view === 'taxi' ? 'border-yellow-500' : 'border-blue-600'} pb-8 mb-8 flex justify-between items-end`}>
+                            <div>
+                                <h1 className="text-6xl font-black text-red-600 tracking-tighter leading-none neon-text-print" style={{fontFamily: 'Arial Black, sans-serif'}}>FIAT</h1>
+                                <div className="mt-4">
+                                    <h2 className="text-4xl font-bold uppercase tracking-wide text-slate-900">
+                                        TABELA <span className={view === 'taxi' ? 'text-yellow-600' : 'text-blue-600'}>{view === 'taxi' ? 'TAXISTA' : 'PCD'}</span>
+                                    </h2>
+                                    <p className="text-slate-500 font-medium tracking-widest text-sm mt-1 uppercase">
+                                        {getFormattedDate()} | Fiori Veículos
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="text-right hidden sm:block">
+                                <h3 className="text-xl font-bold text-slate-900">{managerInfo.name}</h3>
+                                <p className="text-sm text-slate-500 uppercase tracking-wider mb-2">{managerInfo.role}</p>
+                                <p className="text-sm font-mono text-slate-600">{managerInfo.phoneDisplay}</p>
+                                <p className="text-sm text-slate-600">{managerInfo.email}</p>
+                            </div>
+                        </header>
+
+                        {/* TABELA DE DADOS */}
+                        <div className="overflow-hidden mb-10">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b-2 border-slate-200">
+                                        <th onClick={() => requestSort('modelo')} className="text-left py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-50 transition bg-slate-50/50">
+                                            MODELO
+                                        </th>
+                                        <th className="text-center py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50/50">
+                                            TABELA (PÚBLICO)
+                                        </th>
+                                        <th onClick={() => requestSort('taxi')} className={`text-center py-3 px-4 text-xs font-bold uppercase tracking-wider cursor-pointer ${view === 'taxi' ? 'text-yellow-700 bg-yellow-50' : 'text-blue-700 bg-blue-50'}`}>
+                                            IPI + ICMS
+                                        </th>
+                                        <th className="no-print w-16"></th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {processedData.map((item, index) => (
+                                        <tr key={item.id} className="hover:bg-slate-50 transition group break-inside-avoid">
+                                            <td className="py-3 px-4 font-bold text-sm text-slate-800 relative">
+                                                {item.modelo}
+                                                {/* Marcador visual na esquerda */}
+                                                <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-md opacity-0 group-hover:opacity-100 transition-opacity ${view === 'taxi' ? 'bg-yellow-400' : 'bg-blue-400'}`}></div>
+                                            </td>
+                                            <td className="py-3 px-4 text-center text-sm text-slate-500 font-mono">
+                                                {isEditing ? (
+                                                    <input type="number" step="0.01" className="bg-slate-100 border border-slate-300 rounded px-2 py-1 w-28 text-right text-slate-900" value={item.publico} onChange={(e) => handlePriceChange(item.id, 'publico', e.target.value)} />
+                                                ) : (
+                                                    formatMoney(item.publico)
+                                                )}
+                                            </td>
+                                            <td className={`py-3 px-4 text-center font-mono ${view === 'taxi' ? 'bg-yellow-50/30' : 'bg-blue-50/10'}`}>
+                                                {isEditing ? (
+                                                    <input type="number" step="0.01" className="bg-white border border-slate-300 rounded px-2 py-1 w-28 text-right font-bold text-slate-900" value={item.taxi} onChange={(e) => handlePriceChange(item.id, 'taxi', e.target.value)} />
+                                                ) : (
+                                                    <span className={`font-bold px-3 py-1 rounded text-sm ${view === 'taxi' ? 'text-yellow-700 bg-yellow-100 print:bg-transparent print:text-black' : 'text-blue-700 bg-blue-100 print:bg-transparent print:text-black'}`}>
+                                                        {formatMoney(item.taxi)}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="py-3 px-4 text-center no-print">
+                                                {!isEditing && (
+                                                    <a href={getWppLink(item.modelo)} target="_blank" className="text-slate-300 hover:text-green-500 transition-colors">
+                                                        <Icons.MessageCircle />
+                                                    </a>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {processedData.length === 0 && (
+                                <div className="text-center py-10 text-slate-400 italic">Nenhum modelo encontrado.</div>
+                            )}
+                        </div>
+
+                        {/* DOCUMENTAÇÃO */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 break-inside-avoid">
+                            {view === 'taxi' ? (
+                                <>
+                                    <div className="border border-slate-200 rounded-lg p-6">
+                                        <h4 className="font-bold text-yellow-600 text-xs uppercase tracking-widest mb-4 border-b border-yellow-100 pb-2">Documentação Compra</h4>
+                                        <ul className="space-y-2">
+                                            {docsTaxiCompra.map((doc, i) => (
+                                                <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                                                    <span className="text-yellow-400 mt-1">▪</span> {doc}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div className="border border-slate-200 rounded-lg p-6">
+                                        <h4 className="font-bold text-yellow-600 text-xs uppercase tracking-widest mb-4 border-b border-yellow-100 pb-2">Documentação Isenções</h4>
+                                        <ul className="space-y-2">
+                                            {docsTaxiIsencao.map((doc, i) => (
+                                                <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                                                    <span className="text-yellow-400 mt-1">▪</span> {doc}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="col-span-1 md:col-span-2 border border-slate-200 rounded-lg p-6 bg-blue-50/30">
+                                    <h4 className="font-bold text-blue-600 text-xs uppercase tracking-widest mb-4 border-b border-blue-100 pb-2">Relação de Documentos Necessários (PCD)</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                                        {docsPcd.map((doc, i) => (
+                                            <li key={i} className="text-sm text-slate-600 flex items-start gap-2 list-none">
+                                                <span className="text-blue-400 mt-1 font-bold">✓</span> {doc}
+                                            </li>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* FOOTER DO PDF */}
+                        <div className="mt-12 pt-6 border-t border-slate-100 text-center text-xs text-slate-400">
+                            <p>* Valores sujeitos a alteração. {view === 'taxi' ? 'Veículos na cor Branca.' : 'Veículos na cor Preta.'} Válido para faturamento direto de fábrica.</p>
+                            <p className="font-bold mt-1 text-slate-600">{managerInfo.name} - {managerInfo.phone}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
