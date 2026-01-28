@@ -20,22 +20,32 @@
     <!-- Firebase SDKs (Módulos) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Configuração automática do ambiente
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app';
-        
-        if (firebaseConfig.apiKey) {
+        // ==========================================================================================
+        //  CONFIGURAÇÃO REAL DO SEU PROJETO FIREBASE (PAINEL FIORI)
+        // ==========================================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6wx8mBQsSNXMzULecTDtnRiO_8bAavO4",
+            authDomain: "painel-fiori.firebaseapp.com",
+            projectId: "painel-fiori",
+            storageBucket: "painel-fiori.firebasestorage.app",
+            messagingSenderId: "388575037132",
+            appId: "1:388575037132:web:6039306315fb3a2a10a469"
+        };
+        // ==========================================================================================
+
+        // Inicialização Segura
+        try {
             const app = initializeApp(firebaseConfig);
             window.db = getFirestore(app);
             window.auth = getAuth(app);
-            window.appId = appId;
-            window.firebaseOps = { signInAnonymously, signInWithCustomToken, onAuthStateChanged, doc, setDoc, getDoc, onSnapshot, collection };
-            console.log("Firebase Inicializado com Sucesso");
-        } else {
-            console.error("Firebase config não encontrada. O modo offline será usado (sem sincronização).");
+            window.firebaseOps = { signInAnonymously, onAuthStateChanged, doc, setDoc, onSnapshot };
+            console.log("Firebase conectado com sucesso!");
+        } catch (error) {
+            console.error("Erro ao conectar Firebase:", error);
+            alert("Erro ao conectar no banco de dados. Verifique a internet.");
         }
     </script>
 
@@ -105,9 +115,12 @@
             Taxi: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>,
             Pcd: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 9a2 2 0 1 1 2 2"/><path d="M12 11v6"/><path d="M8 17h8"/></svg>,
             Grid: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg>,
+            Plus: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>,
             Car: () => <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>,
+            DollarSign: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>,
             Calendar: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>,
             User: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>,
+            ImageIcon: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>,
             Palette: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21a6 6 0 0 0 6-6c0-1-1-2-2-2h-1.5a3 3 0 0 1-3-3V7a3 3 0 0 0-3-3 6 6 0 1 0 0 17z"></path></svg>
         };
 
@@ -183,6 +196,7 @@
             // --- ESTADOS GERADOR DE COTAÇÕES ---
             const [quoteMode, setQuoteMode] = useState('quote');
             const quoteRef = useRef(null);
+            const cardRef = useRef(null);
             const [quoteForm, setQuoteForm] = useState({
                 city: 'Salvador',
                 date: new Date().toISOString().split('T')[0],
@@ -205,35 +219,22 @@
             // --- FIREBASE SYNC ---
             useEffect(() => {
                 if (!window.firebaseOps) return;
-                const { signInAnonymously, signInWithCustomToken, onAuthStateChanged, doc, onSnapshot } = window.firebaseOps;
+                const { signInAnonymously, onAuthStateChanged, doc, onSnapshot } = window.firebaseOps;
                 
-                // 1. Autenticação
-                const initAuth = async () => {
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(window.auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(window.auth);
-                        }
-                    } catch(e) { console.error("Erro Auth:", e); }
-                };
-                initAuth();
+                // Auth
+                signInAnonymously(window.auth).catch(console.error);
 
-                // 2. Listener de Usuário
-                const unsubAuth = onAuthStateChanged(window.auth, (u) => {
-                    setUser(u);
-                });
+                // User Listener
+                const unsubAuth = onAuthStateChanged(window.auth, (u) => setUser(u));
 
                 return () => unsubAuth();
             }, []);
 
-            // 3. Sync de Dados
+            // Data Sync (only if user logged in)
             useEffect(() => {
                 if (!user || !window.db) return;
                 const { doc, onSnapshot } = window.firebaseOps;
-                
-                // Caminho rigoroso: /artifacts/{appId}/public/data/tables_data/current
-                const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'tables_data', 'current');
+                const docRef = doc(window.db, "painel_fiori", "dados_tabelas");
                 
                 const unsubData = onSnapshot(docRef, (snap) => {
                     if (snap.exists()) {
@@ -243,34 +244,36 @@
                         if (data.selectedDate) setSelectedDate(data.selectedDate);
                     }
                 });
-
                 return () => unsubData();
             }, [user]);
 
-            // Salvar no Firebase
+            // Save to Firebase
             const handleSave = async () => {
                 if (!user || !window.db) {
-                    alert("Modo offline ou erro de autenticação. Dados não salvos na nuvem.");
+                    // Fallback LocalStorage se Firebase não estiver configurado
+                    localStorage.setItem('fiori_taxi_data', JSON.stringify(taxiData));
+                    localStorage.setItem('fiori_pcd_data', JSON.stringify(pcdData));
+                    alert("⚠️ Salvo apenas localmente (Firebase não configurado ou desconectado).");
+                    setIsEditing(false);
                     return;
                 }
-                setIsEditing(false);
+                
                 try {
                     const { doc, setDoc } = window.firebaseOps;
-                    const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'tables_data', 'current');
+                    const docRef = doc(window.db, "painel_fiori", "dados_tabelas");
                     await setDoc(docRef, { taxiData, pcdData, selectedDate });
-                    alert("✅ Dados sincronizados com sucesso na nuvem!");
+                    setIsEditing(false);
+                    alert("✅ Dados sincronizados na nuvem com sucesso!");
                 } catch (e) {
                     console.error("Erro ao salvar:", e);
-                    alert("❌ Erro ao salvar. Verifique sua conexão.");
+                    alert("❌ Erro ao salvar na nuvem: " + e.message);
                 }
             };
 
-            const handleReset = async () => {
-                if(confirm("Deseja restaurar os valores originais de Janeiro/2026? Isso afetará todos os usuários.")) {
+            const handleReset = () => {
+                if(confirm("Restaurar dados originais?")) {
                     setTaxiData(initialTaxiData);
                     setPcdData(initialPcdData);
-                    // Opcional: Salvar reset no DB também
-                    // handleSave(); // Se quiser resetar pra todo mundo imediatamente
                 }
             };
 
@@ -282,13 +285,13 @@
                 view === 'taxi' ? setTaxiData(newData) : setPcdData(newData);
             };
 
+            // Helpers
             const getFormattedDate = () => {
                 const [year, month] = selectedDate.split('-');
                 const date = new Date(parseInt(year), parseInt(month) - 1);
                 const monthName = date.toLocaleString('pt-BR', { month: 'long' });
                 return `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} / ${year}`;
             };
-            
             const getShortYear = () => selectedDate.split('-')[0];
             const formatMoney = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
             const requestSort = (key) => {
@@ -356,48 +359,65 @@
             const handleDownloadQuotePDF = () => {
                 if (quoteRef.current && window.html2pdf) {
                     const element = quoteRef.current;
-                    const opt = {
-                        margin: 0,
-                        filename: `Cotacao_${quoteForm.clientName.substring(0, 10).trim()}_${quoteForm.date}.pdf`,
-                        image: { type: 'jpeg', quality: 0.98 },
-                        html2canvas: { scale: 2, scrollY: 0, useCORS: true },
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                    };
+                    const opt = { margin: 0, filename: `Cotacao_${quoteForm.clientName.substring(0, 10).trim()}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, scrollY: 0, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
                     window.html2pdf().set(opt).from(element).save();
-                } else { alert("Erro biblioteca PDF."); }
+                } else alert("Erro PDF lib");
             };
 
-            // --- VIEW: DASHBOARD ---
+            const handleDownloadQuoteCard = async () => {
+                if (cardRef.current && window.html2canvas) {
+                    try {
+                        const canvas = await window.html2canvas(cardRef.current, { 
+                            scale: 3, 
+                            backgroundColor: '#ffffff', 
+                            logging: false, 
+                            useCORS: true, 
+                            allowTaint: true, 
+                            width: 500,  // Força largura fixa
+                            height: 500, // Força altura fixa
+                            scrollX: 0, 
+                            scrollY: 0, 
+                            windowWidth: 1000 // Força viewport virtual larga para evitar quebras
+                        });
+                        const link = document.createElement('a');
+                        link.download = `Oferta_${quoteForm.vehicleModel.substring(0, 10).trim()}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    } catch (err) { 
+                        alert("Erro ao gerar imagem."); 
+                        console.error(err);
+                    }
+                } else { 
+                    alert("Biblioteca Imagem carregando. Tente novamente."); 
+                }
+            };
+
+            // --- VIEWS ---
             if (view === 'dashboard') {
                 return (
                     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
                         <div className="mb-12 animate-pulse">
                             <h1 className="font-cyber text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-yellow-400 neon-blue tracking-wider mb-2">PAINEL FIORI</h1>
                             <p className="text-slate-400 font-mono tracking-[0.5em] text-sm md:text-base">GESTÃO DE VENDAS INTELIGENTE</p>
-                            {!user && <p className="text-red-500 text-xs mt-2">Conectando ao banco de dados...</p>}
-                            {user && <p className="text-green-500 text-xs mt-2">● Online e Sincronizado</p>}
+                            {user ? <p className="text-green-500 text-xs mt-2">● Online</p> : <p className="text-yellow-500 text-xs mt-2">● Modo Local</p>}
                         </div>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
-                            {/* Cards */}
                             <div onClick={() => setView('taxi')} className="group cursor-pointer bg-slate-900/80 backdrop-blur-md border border-yellow-500/30 p-8 rounded-2xl hover:border-yellow-400 hover:shadow-[0_0_30px_rgba(234,179,8,0.3)] transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition duration-500"><Icons.Taxi /></div>
                                 <h2 className="font-cyber text-3xl font-bold text-yellow-400 mb-4 group-hover:neon-yellow">TABELA TAXI</h2>
-                                <p className="text-slate-400 text-sm leading-relaxed">Acesso completo à tabela com isenção de IPI e ICMS para taxistas.</p>
+                                <p className="text-slate-400 text-sm leading-relaxed">Acesso completo à tabela com isenção de IPI e ICMS para taxistas. Cálculo automático de descontos e documentos.</p>
                                 <div className="mt-6 flex items-center text-yellow-500 font-bold text-sm tracking-widest group-hover:translate-x-2 transition-transform">ACESSAR MÓDULO &rarr;</div>
                             </div>
-
                             <div onClick={() => setView('pcd')} className="group cursor-pointer bg-slate-900/80 backdrop-blur-md border border-blue-500/30 p-8 rounded-2xl hover:border-blue-400 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition duration-500"><Icons.Pcd /></div>
                                 <h2 className="font-cyber text-3xl font-bold text-blue-400 mb-4 group-hover:neon-blue">TABELA PCD</h2>
-                                <p className="text-slate-400 text-sm leading-relaxed">Módulo exclusivo para PcD. Valores ajustados e documentação.</p>
+                                <p className="text-slate-400 text-sm leading-relaxed">Módulo exclusivo para PcD. Valores ajustados, lista de laudos e documentação necessária para isenções.</p>
                                 <div className="mt-6 flex items-center text-blue-500 font-bold text-sm tracking-widest group-hover:translate-x-2 transition-transform">ACESSAR MÓDULO &rarr;</div>
                             </div>
-
                             <div onClick={() => setView('quote')} className="group cursor-pointer bg-slate-900/80 backdrop-blur-md border border-green-500/30 p-8 rounded-2xl hover:border-green-400 hover:shadow-[0_0_30px_rgba(34,197,94,0.3)] transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition duration-500"><Icons.FileText /></div>
                                 <h2 className="font-cyber text-3xl font-bold text-green-400 mb-4 group-hover:neon-green">GERADOR COTAÇÕES</h2>
-                                <p className="text-slate-400 text-sm leading-relaxed">Criar propostas PDF.</p>
+                                <p className="text-slate-400 text-sm leading-relaxed">Ferramenta para criar propostas em PDF e cards promocionais para Instagram/WhatsApp instantaneamente.</p>
                                 <div className="mt-6 flex items-center text-green-500 font-bold text-sm tracking-widest group-hover:translate-x-2 transition-transform">ACESSAR MÓDULO &rarr;</div>
                             </div>
                         </div>
@@ -405,61 +425,74 @@
                 );
             }
 
-            // --- VIEW: GERADOR ---
             if (view === 'quote') {
                 return (
                     <div className="min-h-screen flex flex-col md:flex-row print:bg-white text-gray-800 font-sans">
                         <div className="w-full md:w-1/3 bg-slate-50 border-r border-gray-200 p-6 overflow-y-auto h-auto md:h-screen shadow-lg z-10 print:hidden relative">
                             <button onClick={() => setView('dashboard')} className="absolute top-4 right-4 bg-slate-200 hover:bg-slate-300 rounded-full p-2 text-slate-600 transition"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
                             <div className="mb-6 border-b pb-4"><h1 className="text-2xl font-bold text-blue-900 flex items-center gap-2"><Icons.Car className="w-6 h-6" />Gerador Fiat</h1></div>
-                            
-                            {/* Inputs Cotação */}
+                            <div className="flex p-1 bg-gray-200 rounded-lg mb-6">
+                                <button onClick={() => setQuoteMode('quote')} className={`flex-1 py-2 px-3 rounded-md text-sm font-bold flex items-center justify-center gap-2 transition-all ${quoteMode === 'quote' ? 'bg-white shadow text-blue-900' : 'text-gray-500 hover:bg-gray-300'}`}><Icons.FileText className="w-4 h-4" /> Documento</button>
+                                <button onClick={() => setQuoteMode('card')} className={`flex-1 py-2 px-3 rounded-md text-sm font-bold flex items-center justify-center gap-2 transition-all ${quoteMode === 'card' ? 'bg-white shadow text-red-600' : 'text-gray-500 hover:bg-gray-300'}`}><Icons.ImageIcon className="w-4 h-4" /> Card Promo</button>
+                            </div>
                             <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1"><Icons.Car className="w-3 h-3" /> Veículo</label>
-                                    <textarea name="vehicleModel" value={quoteForm.vehicleModel} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm h-20" placeholder="Modelo..." />
-                                    <div className="flex items-center gap-2 bg-white p-2 rounded border"><Icons.Palette className="w-4 h-4" /><input type="text" name="vehicleColor" value={quoteForm.vehicleColor} onChange={handleQuoteChange} className="w-full bg-transparent text-sm focus:outline-none" placeholder="Cor" /></div>
-                                    <input type="text" name="vehicleOptionals" value={quoteForm.vehicleOptionals} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="Opcionais" />
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <input type="text" name="pricePublic" value={quoteForm.pricePublic} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="R$ Público" />
-                                        <input type="text" name="priceCnpj" value={quoteForm.priceCnpj} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm font-bold text-blue-900" placeholder="R$ CNPJ" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2 pt-2 border-t"><label className="text-xs font-semibold text-gray-500 uppercase">Cliente</label><input type="text" name="clientName" value={quoteForm.clientName} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="Nome" /><input type="text" name="clientCnpj" value={quoteForm.clientCnpj} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="CNPJ" /></div>
-                                <button onClick={handleDownloadQuotePDF} className="w-full mt-6 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700"><Icons.Download className="w-5 h-5" /> Baixar PDF</button>
+                                <div className="space-y-2"><label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1"><Icons.Car className="w-3 h-3" /> Veículo</label><textarea name="vehicleModel" value={quoteForm.vehicleModel} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm h-20" placeholder="Modelo..." /><div className="flex items-center gap-2 bg-white p-2 rounded border"><Icons.Palette className="w-4 h-4" /><input type="text" name="vehicleColor" value={quoteForm.vehicleColor} onChange={handleQuoteChange} className="w-full bg-transparent text-sm focus:outline-none" placeholder="Cor" /></div>{quoteMode === 'quote' && <input type="text" name="vehicleOptionals" value={quoteForm.vehicleOptionals} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="Opcionais" />}<div className="grid grid-cols-2 gap-2"><input type="text" name="pricePublic" value={quoteForm.pricePublic} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="R$ Público" /><input type="text" name="priceCnpj" value={quoteForm.priceCnpj} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm font-bold text-blue-900" placeholder="R$ CNPJ" /></div></div>
+                                {quoteMode === 'quote' && <div className="space-y-2 pt-2 border-t"><label className="text-xs font-semibold text-gray-500 uppercase">Cliente</label><input type="text" name="clientName" value={quoteForm.clientName} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="Nome" /><input type="text" name="clientCnpj" value={quoteForm.clientCnpj} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="CNPJ" /><div className="pt-2"><label className="text-[10px] text-gray-400">Finame</label><input type="text" name="finameCode" value={quoteForm.finameCode} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="Código" /></div></div>}
+                                <div className="space-y-2 pt-2 border-t"><label className="text-xs font-semibold text-gray-500 uppercase">Assinatura</label><input type="text" name="sellerName" value={quoteForm.sellerName} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="Nome" /><input type="text" name="sellerPhone" value={quoteForm.sellerPhone} onChange={handleQuoteChange} className="w-full p-2 border rounded text-sm" placeholder="Tel" /></div>
+                                <button onClick={quoteMode === 'quote' ? handleDownloadQuotePDF : handleDownloadQuoteCard} className={`w-full mt-6 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2 shadow-md transition-colors ${quoteMode === 'quote' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-900 hover:bg-blue-800'}`}><Icons.Download className="w-5 h-5" /> {quoteMode === 'quote' ? 'Baixar PDF' : 'Baixar Imagem'}</button>
                             </div>
                         </div>
-
-                        {/* Preview PDF */}
                         <div className="flex-1 p-8 overflow-y-auto bg-gray-300 flex justify-center items-start print:p-0 print:bg-white print:block print:w-full">
-                            <div ref={quoteRef} className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] p-[15mm] md:p-[20mm] relative text-black print:shadow-none">
-                                <div className="mb-8"><div className="flex flex-col items-start gap-1 mb-4"><h1 className="text-4xl font-black text-red-600 tracking-tighter italic" style={{fontFamily: 'Arial Black, sans-serif'}}>FIAT</h1><h2 className="text-xs font-bold text-gray-800 tracking-wide">{quoteForm.providerName}</h2></div></div>
-                                <div className="mb-8"><p className="text-sm font-medium mb-4">{quoteForm.city}, {getQuoteDate()}</p><div className="flex justify-between items-start"><div><h2 className="text-xl font-bold uppercase border-b-2 border-black inline-block mb-1">COTAÇÃO</h2><p className="text-xs font-bold text-gray-600">VENDAS CORPORATIVAS</p></div><div className="text-right"><p className="text-xs font-bold text-gray-600">{quoteForm.providerCnpj}</p></div></div></div>
-                                <div className="mb-8 border-l-4 border-gray-200 pl-4 py-1"><p className="text-sm font-bold text-gray-800 mb-1">Prezado Sr(a):</p><p className="text-lg font-bold text-blue-900 uppercase leading-tight mb-2">{quoteForm.clientName}</p><p className="text-sm text-gray-600 font-mono">{quoteForm.clientCnpj}</p></div>
-                                <div className="mb-6"><table className="w-full border-collapse border border-black text-xs md:text-sm"><thead className="bg-gray-100"><tr><th className="border border-black p-2 text-center w-12">QNT</th><th className="border border-black p-2 text-left">MODELO</th><th className="border border-black p-2 text-left">OPCIONAIS</th><th className="border border-black p-2 text-right">PREÇO PÚBLICO</th><th className="border border-black p-2 text-right bg-gray-200 font-bold">PREÇO CNPJ</th></tr></thead><tbody><tr><td className="border border-black p-3 text-center align-top">1</td><td className="border border-black p-3 align-top font-bold text-blue-900">{quoteForm.vehicleModel.split('\n').map((line, i) => <div key={i}>{line}</div>)}{quoteForm.vehicleColor && <div className="mt-2 text-gray-700 font-normal"><span className="font-bold text-black text-xs uppercase">Cor:</span> {quoteForm.vehicleColor}</div>}</td><td className="border border-black p-3 align-top text-gray-700">{quoteForm.vehicleOptionals}</td><td className="border border-black p-3 text-right align-top font-medium">R$ {quoteForm.pricePublic}</td><td className="border border-black p-3 text-right align-top font-bold bg-yellow-50 text-black">R$ {quoteForm.priceCnpj}</td></tr></tbody></table></div>
-                                <div className="mt-auto"><p className="text-sm font-bold uppercase mb-6">ATENCIOSAMENTE,</p><div className="inline-block"><p className="text-lg font-bold text-gray-900">{quoteForm.sellerName}</p><p className="text-sm text-gray-700 mb-1">{quoteForm.sellerPhone}</p></div></div>
-                            </div>
+                            {quoteMode === 'quote' && (
+                                <div ref={quoteRef} className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] p-[15mm] md:p-[20mm] relative text-black print:shadow-none">
+                                    <div className="mb-8"><div className="flex flex-col items-start gap-1 mb-4"><h1 className="text-4xl font-black text-red-600 tracking-tighter italic" style={{fontFamily: 'Arial Black, sans-serif'}}>FIAT</h1><h2 className="text-xs font-bold text-gray-800 tracking-wide">{quoteForm.providerName}</h2></div></div>
+                                    <div className="mb-8"><p className="text-sm font-medium mb-4">{quoteForm.city}, {getQuoteDate()}</p><div className="flex justify-between items-start"><div><h2 className="text-xl font-bold uppercase border-b-2 border-black inline-block mb-1">COTAÇÃO</h2><p className="text-xs font-bold text-gray-600">VENDAS CORPORATIVAS</p></div><div className="text-right"><p className="text-xs font-bold text-gray-600">{quoteForm.providerCnpj}</p></div></div></div>
+                                    <div className="mb-8 border-l-4 border-gray-200 pl-4 py-1"><p className="text-sm font-bold text-gray-800 mb-1">Prezado Sr(a):</p><p className="text-lg font-bold text-blue-900 uppercase leading-tight mb-2">{quoteForm.clientName}</p><p className="text-sm text-gray-600 font-mono">{quoteForm.clientCnpj}</p></div>
+                                    <div className="mb-6"><table className="w-full border-collapse border border-black text-xs md:text-sm"><thead className="bg-gray-100"><tr><th className="border border-black p-2 text-center w-12">QNT</th><th className="border border-black p-2 text-left">MODELO</th><th className="border border-black p-2 text-left">OPCIONAIS</th><th className="border border-black p-2 text-right">PREÇO PÚBLICO</th><th className="border border-black p-2 text-right bg-gray-200 font-bold">PREÇO CNPJ</th></tr></thead><tbody><tr><td className="border border-black p-3 text-center align-top">1</td><td className="border border-black p-3 align-top font-bold text-blue-900">{quoteForm.vehicleModel.split('\n').map((line, i) => <div key={i}>{line}</div>)}{quoteForm.vehicleColor && <div className="mt-2 text-gray-700 font-normal"><span className="font-bold text-black text-xs uppercase">Cor:</span> {quoteForm.vehicleColor}</div>}</td><td className="border border-black p-3 align-top text-gray-700">{quoteForm.vehicleOptionals}</td><td className="border border-black p-3 text-right align-top font-medium">R$ {quoteForm.pricePublic}</td><td className="border border-black p-3 text-right align-top font-bold bg-yellow-50 text-black">R$ {quoteForm.priceCnpj}</td></tr></tbody></table></div>
+                                    <div className="mb-12 border-t border-b border-gray-300 py-4"><p className="text-xs font-bold text-center text-gray-600 uppercase">SALIENTAMOS QUE OS VALORES E PRAZOS PODERÃO SOFRER ALTERAÇÕES ATÉ A DATA DO FATURAMENTO CONFORME A POLÍTICA COMERCIAL DA FIAT.</p></div>
+                                    <div className="mt-auto"><p className="text-sm font-bold uppercase mb-6">ATENCIOSAMENTE,</p><div className="inline-block"><p className="text-lg font-bold text-gray-900">{quoteForm.sellerName}</p><p className="text-sm text-gray-700 mb-1">{quoteForm.sellerPhone}</p><p className="text-sm font-bold text-gray-500">{quoteForm.sellerTitle}</p><p className="text-sm text-blue-600 underline decoration-1">{quoteForm.sellerEmail}</p></div></div>
+                                    <div className="absolute bottom-4 right-6 text-[10px] text-gray-300 print:hidden">Documento gerado automaticamente</div>
+                                </div>
+                            )}
+                            {quoteMode === 'card' && (
+                                <div className="flex items-center justify-center min-h-[600px] w-full overflow-x-auto">
+                                    <div ref={cardRef} className="bg-white shadow-2xl relative flex flex-col flex-shrink-0" style={{ width: '500px', height: '500px', minWidth: '500px', minHeight: '500px', overflow: 'hidden' }}>
+                                        <div className="bg-red-600 h-24 flex items-center justify-between px-8 relative overflow-hidden flex-shrink-0">
+                                            <div className="absolute -right-4 -top-4 w-32 h-32 bg-red-500 rounded-full opacity-50 blur-xl"></div>
+                                            <h1 className="text-5xl font-black text-white tracking-tighter italic z-10" style={{fontFamily: 'Arial Black, sans-serif'}}>FIAT</h1>
+                                            <div className="text-white text-right z-10"><p className="text-xs font-bold opacity-80 uppercase tracking-widest">Oferta Especial</p><p className="text-xs opacity-60">Vendas Corporativas</p></div>
+                                        </div>
+                                        <div className="flex-1 p-8 flex flex-col justify-center relative overflow-hidden">
+                                            <Icons.Car className="absolute text-gray-100 w-64 h-64 -left-10 bottom-10 -rotate-12 z-0 opacity-80" strokeWidth={1} />
+                                            <div className="z-10 relative flex flex-col gap-2">
+                                                <h2 className="text-3xl font-black text-gray-800 leading-none mb-2 uppercase break-words" style={{ maxWidth: '100%', wordWrap: 'break-word' }}>{quoteForm.vehicleModel || "MODELO DO VEÍCULO"}</h2>
+                                                {quoteForm.vehicleColor && (<p className="text-sm font-bold text-gray-500 uppercase mb-4 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-gray-400 inline-block"></span>{quoteForm.vehicleColor}</p>)}
+                                                <div className="space-y-4 mt-2">
+                                                    <div className="flex items-center gap-3"><div className="text-xs font-bold text-gray-400 uppercase">De:</div><span className="text-xl text-gray-400 font-medium line-through decoration-2 decoration-gray-400">R$ {quoteForm.pricePublic || "0,00"}</span></div>
+                                                    <div className="bg-blue-900 text-white p-4 rounded-xl shadow-lg transform origin-left w-full max-w-[90%]"><div className="flex flex-col"><div className="text-[10px] font-bold text-blue-200 uppercase mb-1">Por (CNPJ / Produtor Rural):</div><div className="text-yellow-400 flex items-baseline gap-1"><span className="text-lg font-bold text-white">R$</span><span className="text-5xl font-black tracking-tighter leading-none">{quoteForm.priceCnpj || "0,00"}</span></div></div></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-gray-100 px-6 py-4 flex items-center justify-between border-t border-gray-200 flex-shrink-0 h-20">
+                                            <div><p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Consulte Condições</p><p className="text-[9px] text-gray-400">Sujeito a alteração sem aviso prévio.</p></div>
+                                            <div className="text-right"><p className="text-sm font-bold text-gray-900 leading-tight">{quoteForm.sellerName}</p><p className="text-xs font-bold text-red-600">{quoteForm.sellerPhone}</p></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 );
             }
 
-            // --- VIEW: TABELAS ---
             return (
                 <div className="min-h-screen pb-20">
                     <nav className="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50 no-print">
                         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div onClick={() => setView('dashboard')} className="flex items-center gap-3 cursor-pointer group">
-                                <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center border border-slate-700 group-hover:border-blue-500 transition-colors"><Icons.Grid /></div>
-                                <h1 className="font-cyber font-bold text-xl text-slate-200 group-hover:text-blue-400 transition-colors">PAINEL <span className={view === 'taxi' ? 'text-yellow-500' : 'text-blue-500'}>{view.toUpperCase()}</span></h1>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="relative group"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500"><Icons.Search /></div><input type="text" placeholder="Filtrar modelo..." className="bg-slate-950 border border-slate-700 text-slate-200 text-sm rounded-full pl-10 pr-4 py-2 w-48 focus:w-64 focus:border-blue-500 transition-all outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
-                                <button onClick={() => setView('dashboard')} className="text-xs font-mono text-slate-500 hover:text-white transition">VOLTAR</button>
-                            </div>
+                            <div onClick={() => setView('dashboard')} className="flex items-center gap-3 cursor-pointer group"><div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center border border-slate-700 group-hover:border-blue-500 transition-colors"><Icons.Grid /></div><h1 className="font-cyber font-bold text-xl text-slate-200 group-hover:text-blue-400 transition-colors">PAINEL <span className={view === 'taxi' ? 'text-yellow-500' : 'text-blue-500'}>{view.toUpperCase()}</span></h1></div>
+                            <div className="flex items-center gap-4"><div className="relative group"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500"><Icons.Search /></div><input type="text" placeholder="Filtrar modelo..." className="bg-slate-950 border border-slate-700 text-slate-200 text-sm rounded-full pl-10 pr-4 py-2 w-48 focus:w-64 focus:border-blue-500 transition-all outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div><button onClick={() => setView('dashboard')} className="text-xs font-mono text-slate-500 hover:text-white transition">VOLTAR</button></div>
                         </div>
                     </nav>
-
                     <div className="max-w-7xl mx-auto px-4 mt-8 mb-6 no-print">
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 box-neon">
                             <div className="flex items-center gap-4">
@@ -471,19 +504,15 @@
                             <div className="flex gap-3"><button onClick={handleReset} className="p-2 text-slate-500 hover:text-red-500 transition" title="Resetar Padrão"><Icons.Refresh /></button><button onClick={handleNativePrint} className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border border-slate-700 transition"><Icons.Printer /> Imprimir</button><button onClick={handleDownloadPDF} disabled={isGenerating} className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-blue-900/50 flex items-center gap-2 transition transform hover:scale-105"><Icons.Download /> {isGenerating ? 'Gerando...' : 'Baixar PDF'}</button></div>
                         </div>
                     </div>
-
                     <div id="printable-area" className="max-w-6xl mx-auto bg-white text-slate-900 p-8 md:p-12 rounded-none md:rounded-sm shadow-2xl print:shadow-none print:p-0">
                         <header className={`border-b-4 ${view === 'taxi' ? 'border-yellow-500' : 'border-blue-600'} pb-8 mb-8 flex justify-between items-end`}>
                             <div><h1 className="text-6xl font-black text-red-600 tracking-tighter leading-none neon-text-print" style={{fontFamily: 'Arial Black, sans-serif'}}>FIAT</h1><div className="mt-4"><h2 className="text-4xl font-bold uppercase tracking-wide text-slate-900">TABELA <span className={view === 'taxi' ? 'text-yellow-600' : 'text-blue-600'}>{view === 'taxi' ? 'TAXISTA' : 'PCD'}</span></h2><p className="text-slate-500 font-medium tracking-widest text-sm mt-1 uppercase">{getFormattedDate()} | Fiori Veículos</p></div></div>
                             <div className="text-right hidden sm:block"><h3 className="text-xl font-bold text-slate-900">{managerInfo.name}</h3><p className="text-sm text-slate-500 uppercase tracking-wider mb-2">{managerInfo.role}</p><p className="text-sm font-mono text-slate-600">{managerInfo.phoneDisplay}</p><p className="text-sm text-slate-600">{managerInfo.email}</p></div>
                         </header>
-
                         <div className="overflow-hidden mb-10"><table className="w-full"><thead><tr className="border-b-2 border-slate-200"><th onClick={() => requestSort('modelo')} className="text-left py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-50 transition bg-slate-50/50">MODELO</th><th className="text-center py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50/50">TABELA (PÚBLICO)</th><th onClick={() => requestSort('taxi')} className={`text-center py-3 px-4 text-xs font-bold uppercase tracking-wider cursor-pointer ${view === 'taxi' ? 'text-yellow-700 bg-yellow-50' : 'text-blue-700 bg-blue-50'}`}>IPI + ICMS</th><th className="no-print w-16"></th></tr></thead><tbody className="divide-y divide-slate-100">{processedData.map((item) => (<tr key={item.id} className="hover:bg-slate-50 transition group break-inside-avoid"><td className="py-3 px-4 font-bold text-sm text-slate-800 relative">{item.modelo}<div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-md opacity-0 group-hover:opacity-100 transition-opacity ${view === 'taxi' ? 'bg-yellow-400' : 'bg-blue-400'}`}></div></td><td className="py-3 px-4 text-center text-sm text-slate-500 font-mono">{isEditing ? (<input type="number" step="0.01" className="bg-slate-100 border border-slate-300 rounded px-2 py-1 w-28 text-right text-slate-900" value={item.publico} onChange={(e) => handlePriceChange(item.id, 'publico', e.target.value)} />) : (formatMoney(item.publico))}</td><td className={`py-3 px-4 text-center font-mono ${view === 'taxi' ? 'bg-yellow-50/30' : 'bg-blue-50/10'}`}>{isEditing ? (<input type="number" step="0.01" className="bg-white border border-slate-300 rounded px-2 py-1 w-28 text-right font-bold text-slate-900" value={item.taxi} onChange={(e) => handlePriceChange(item.id, 'taxi', e.target.value)} />) : (<span className={`font-bold px-3 py-1 rounded text-sm ${view === 'taxi' ? 'text-yellow-700 bg-yellow-100 print:bg-transparent print:text-black' : 'text-blue-700 bg-blue-100 print:bg-transparent print:text-black'}`}>{formatMoney(item.taxi)}</span>)}</td><td className="py-3 px-4 text-center no-print">{!isEditing && (<a href={getWppLink(item.modelo)} target="_blank" className="text-slate-300 hover:text-green-500 transition-colors"><Icons.MessageCircle /></a>)}</td></tr>))}</tbody></table></div>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 break-inside-avoid">
                             {view === 'taxi' ? (<><div className="border border-slate-200 rounded-lg p-6"><h4 className="font-bold text-yellow-600 text-xs uppercase tracking-widest mb-4 border-b border-yellow-100 pb-2">Documentação Compra</h4><ul className="space-y-2">{docsTaxiCompra.map((doc, i) => (<li key={i} className="text-sm text-slate-600 flex items-start gap-2"><span className="text-yellow-400 mt-1">▪</span> {doc}</li>))}</ul></div><div className="border border-slate-200 rounded-lg p-6"><h4 className="font-bold text-yellow-600 text-xs uppercase tracking-widest mb-4 border-b border-yellow-100 pb-2">Documentação Isenções</h4><ul className="space-y-2">{docsTaxiIsencao.map((doc, i) => (<li key={i} className="text-sm text-slate-600 flex items-start gap-2"><span className="text-yellow-400 mt-1">▪</span> {doc}</li>))}</ul></div></>) : (<div className="col-span-1 md:col-span-2 border border-slate-200 rounded-lg p-6 bg-blue-50/30"><h4 className="font-bold text-blue-600 text-xs uppercase tracking-widest mb-4 border-b border-blue-100 pb-2">Relação de Documentos Necessários (PCD)</h4><div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">{docsPcd.map((doc, i) => (<li key={i} className="text-sm text-slate-600 flex items-start gap-2 list-none"><span className="text-blue-400 mt-1 font-bold">✓</span> {doc}</li>))}</div></div>)}
                         </div>
-
                         <div className="mt-12 pt-6 border-t border-slate-100 text-center text-xs text-slate-400"><p>* Valores sujeitos a alteração. {view === 'taxi' ? 'Veículos na cor Branca.' : 'Veículos na cor Preta.'} Válido para faturamento direto de fábrica.</p><p className="font-bold mt-1 text-slate-600">{managerInfo.name} - {managerInfo.phone}</p></div>
                     </div>
                 </div>
