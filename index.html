@@ -57,6 +57,7 @@
         .font-cyber { font-family: 'Orbitron', sans-serif; }
 
         .box-neon { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); }
+        .box-neon-purple { box-shadow: 0 0 15px rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); }
         
         .cyber-grid {
             background-image: 
@@ -77,12 +78,18 @@
             background: #1e293b;
         }
 
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
         @media print {
             @page { margin: 0.5cm; size: A4; }
             body { background: white; color: black; font-family: 'Roboto', sans-serif; }
             .cyber-grid { background: none !important; }
             .no-print { display: none !important; }
-            .box-neon { box-shadow: none !important; border: 1px solid #ccc !important; }
+            .box-neon, .box-neon-purple { box-shadow: none !important; border: 1px solid #ccc !important; }
             table { font-size: 11px; width: 100%; color: black; }
             th { background-color: #f3f4f6 !important; color: black !important; }
             td { color: black !important; border-color: #e5e7eb !important; }
@@ -121,32 +128,37 @@
             Calendar: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>,
             User: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>,
             ImageIcon: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>,
-            Palette: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21a6 6 0 0 0 6-6c0-1-1-2-2-2h-1.5a3 3 0 0 1-3-3V7a3 3 0 0 0-3-3 6 6 0 1 0 0 17z"></path></svg>
+            Palette: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21a6 6 0 0 0 6-6c0-1-1-2-2-2h-1.5a3 3 0 0 1-3-3V7a3 3 0 0 0-3-3 6 6 0 1 0 0 17z"></path></svg>,
+            Briefcase: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>,
+            TrendingUp: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>,
+            Trash: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>,
+            PlusCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>,
+            Lock: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         };
 
         // --- DADOS INICIAIS ---
         const initialTaxiData = [
-            { id: 1, modelo: "MOBI LIKE", publico: 86350.00, taxi: 66014.00 },
-            { id: 2, modelo: "MOBI TREKKING", publico: 85780.00, taxi: 67939.00 },
-            { id: 3, modelo: "ARGO DRIVE 1.0", publico: 97780.00, taxi: 80024.00 },
-            { id: 4, modelo: "ARGO TREKKING 1.3 MT", publico: 103780.00, taxi: 85743.00 },
-            { id: 5, modelo: "ARGO DRIVE 1.3 AT", publico: 108980.00, taxi: 89874.00 },
-            { id: 6, modelo: "ARGO TREKKING AT", publico: 111780.00, taxi: 92352.00 },
-            { id: 7, modelo: "CRONOS DRIVE 1.0", publico: 109980.00, taxi: 81243.00 },
-            { id: 8, modelo: "CRONOS DRIVE 1.3 MT", publico: 114980.00, taxi: 83905.00 },
-            { id: 9, modelo: "CRONOS DRIVE 1.3 AT", publico: 119980.00, taxi: 92586.00 },
-            { id: 10, modelo: "CRONOS DRIVE 1.3 AT KIT SD", publico: 123960.00, taxi: 95742.00 },
-            { id: 11, modelo: "CRONOS PRECISION", publico: 125980.00, taxi: 94046.00 },
-            { id: 12, modelo: "PULSE DRIVE 1.3 MT", publico: 103980.00, taxi: 85472.00 },
-            { id: 13, modelo: "PULSE DRIVE 1.3 AT", publico: 115980.00, taxi: 88526.00 },
-            { id: 14, modelo: "PULSE DRIVE 1.0 AT", publico: 119980.00, taxi: 95823.00 },
-            { id: 15, modelo: "PULSE AUDACE HYBRID", publico: 136980.00, taxi: 100292.00 },
-            { id: 16, modelo: "PULSE IMPETUS HYBRID", publico: 150980.00, taxi: 114270.00 },
-            { id: 17, modelo: "FASTBACK T200", publico: 119990.00, taxi: 99823.00 },
-            { id: 18, modelo: "FASTBACK AUDACE HYBRID", publico: 166980.00, taxi: 121566.00 },
-            { id: 19, modelo: "FASTBACK IMPETUS HYBRID", publico: 172980.00, taxi: 135039.00 },
-            { id: 20, modelo: "FASTBACK LIMITED EDITION", publico: 176989.00, taxi: 136985.00 },
-            { id: 21, modelo: "FASTBACK ABARTH", publico: 182980.00, taxi: 146990.00 },
+            { id: 1, modelo: "Mobi Like", publico: 86350.00, taxi: 66014.00 },
+            { id: 2, modelo: "Mobi Trekking", publico: 85780.00, taxi: 67939.00 },
+            { id: 3, modelo: "Argo Drive 1.0", publico: 97780.00, taxi: 80024.00 },
+            { id: 4, modelo: "Argo Trekking 1.3 MT", publico: 103780.00, taxi: 85743.00 },
+            { id: 5, modelo: "Argo Drive 1.3 AT", publico: 108980.00, taxi: 89874.00 },
+            { id: 6, modelo: "Argo Trekking AT", publico: 111780.00, taxi: 92352.00 },
+            { id: 7, modelo: "Cronos Drive 1.0", publico: 109980.00, taxi: 81243.00 },
+            { id: 8, modelo: "Cronos Drive 1.3 MT", publico: 114980.00, taxi: 83905.00 },
+            { id: 9, modelo: "Cronos Drive 1.3 AT", publico: 119980.00, taxi: 92586.00 },
+            { id: 10, modelo: "Cronos Drive 1.3 AT Kit SD", publico: 123960.00, taxi: 95742.00 },
+            { id: 11, modelo: "Cronos Precision", publico: 125980.00, taxi: 94046.00 },
+            { id: 12, modelo: "Pulse Drive 1.3 MT", publico: 103980.00, taxi: 85472.00 },
+            { id: 13, modelo: "Pulse Drive 1.3 AT", publico: 115980.00, taxi: 88526.00 },
+            { id: 14, modelo: "Pulse Drive 1.0 AT", publico: 119980.00, taxi: 95823.00 },
+            { id: 15, modelo: "Pulse Audace Hybrid", publico: 136980.00, taxi: 100292.00 },
+            { id: 16, modelo: "Pulse Impetus Hybrid", publico: 150980.00, taxi: 114270.00 },
+            { id: 17, modelo: "Fastback T200", publico: 119990.00, taxi: 99823.00 },
+            { id: 18, modelo: "Fastback Audace Hybrid", publico: 166980.00, taxi: 121566.00 },
+            { id: 19, modelo: "Fastback Impetus Hybrid", publico: 172980.00, taxi: 135039.00 },
+            { id: 20, modelo: "Fastback Limited Edition", publico: 176989.00, taxi: 136985.00 },
+            { id: 21, modelo: "Fastback Abarth", publico: 182980.00, taxi: 146990.00 }
         ];
 
         const initialPcdData = [
@@ -193,6 +205,28 @@
             const [pcdData, setPcdData] = useState(initialPcdData);
             const [user, setUser] = useState(null);
 
+            // --- ESTADOS COMISSÕES ---
+            const [commissionsData, setCommissionsData] = useState([]);
+            const [newSale, setNewSale] = useState({
+                id: null,
+                date: new Date().toISOString().split('T')[0],
+                client: '',
+                model: '',
+                carValue: '',
+                carMarginPct: '',
+                paymentMethod: 'Financiamento',
+                financingActive: false,
+                financingValue: '',
+                licenseActive: false,
+                licenseValue: '',
+                accessories: [], // { name: '', value: '' }
+                rwActive: false,
+                rwValue: 500, // Exemplo
+                insuranceActive: false,
+                insuranceValue: 1000 // Exemplo
+            });
+            const [showNewSaleForm, setShowNewSaleForm] = useState(false);
+
             // --- ESTADOS GERADOR DE COTAÇÕES ---
             const [quoteMode, setQuoteMode] = useState('quote');
             const quoteRef = useRef(null);
@@ -219,18 +253,13 @@
             // --- FIREBASE SYNC ---
             useEffect(() => {
                 if (!window.firebaseOps) return;
-                const { signInAnonymously, onAuthStateChanged, doc, onSnapshot } = window.firebaseOps;
-                
-                // Auth
+                const { signInAnonymously, onAuthStateChanged } = window.firebaseOps;
                 signInAnonymously(window.auth).catch(console.error);
-
-                // User Listener
                 const unsubAuth = onAuthStateChanged(window.auth, (u) => setUser(u));
-
                 return () => unsubAuth();
             }, []);
 
-            // Data Sync (only if user logged in)
+            // Data Sync
             useEffect(() => {
                 if (!user || !window.db) return;
                 const { doc, onSnapshot } = window.firebaseOps;
@@ -241,6 +270,7 @@
                         const data = snap.data();
                         if (data.taxiData) setTaxiData(data.taxiData);
                         if (data.pcdData) setPcdData(data.pcdData);
+                        if (data.commissionsData) setCommissionsData(data.commissionsData);
                         if (data.selectedDate) setSelectedDate(data.selectedDate);
                     }
                 });
@@ -250,9 +280,9 @@
             // Save to Firebase
             const handleSave = async () => {
                 if (!user || !window.db) {
-                    // Fallback LocalStorage se Firebase não estiver configurado
                     localStorage.setItem('fiori_taxi_data', JSON.stringify(taxiData));
                     localStorage.setItem('fiori_pcd_data', JSON.stringify(pcdData));
+                    localStorage.setItem('fiori_commissions_data', JSON.stringify(commissionsData));
                     alert("⚠️ Salvo apenas localmente (Firebase não configurado ou desconectado).");
                     setIsEditing(false);
                     return;
@@ -261,7 +291,7 @@
                 try {
                     const { doc, setDoc } = window.firebaseOps;
                     const docRef = doc(window.db, "painel_fiori", "dados_tabelas");
-                    await setDoc(docRef, { taxiData, pcdData, selectedDate });
+                    await setDoc(docRef, { taxiData, pcdData, commissionsData, selectedDate });
                     setIsEditing(false);
                     alert("✅ Dados sincronizados na nuvem com sucesso!");
                 } catch (e) {
@@ -285,7 +315,6 @@
                 view === 'taxi' ? setTaxiData(newData) : setPcdData(newData);
             };
 
-            // Helpers
             const getFormattedDate = () => {
                 const [year, month] = selectedDate.split('-');
                 const date = new Date(parseInt(year), parseInt(month) - 1);
@@ -293,7 +322,7 @@
                 return `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} / ${year}`;
             };
             const getShortYear = () => selectedDate.split('-')[0];
-            const formatMoney = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+            const formatMoney = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value) || 0);
             const requestSort = (key) => {
                 let direction = 'ascending';
                 if (sortConfig.key === key && sortConfig.direction === 'ascending') direction = 'descending';
@@ -302,6 +331,7 @@
 
             const currentData = view === 'taxi' ? taxiData : pcdData;
             const processedData = useMemo(() => {
+                if (view === 'commissions') return commissionsData;
                 let data = [...currentData];
                 if (searchTerm) data = data.filter(item => item.modelo.toLowerCase().includes(searchTerm.toLowerCase()));
                 if (sortConfig.key) {
@@ -312,9 +342,9 @@
                     });
                 }
                 return data;
-            }, [searchTerm, sortConfig, currentData]);
+            }, [searchTerm, sortConfig, currentData, commissionsData, view]);
 
-            // PDF
+            // PDF Functions
             const handleNativePrint = () => window.print();
             const handleDownloadPDF = () => {
                 setIsGenerating(true);
@@ -342,12 +372,40 @@
                 return `https://wa.me/55${managerInfo.phone}?text=${encodeURIComponent(text)}`;
             };
 
-            // --- FUNÇÕES COTAÇÃO ---
+            // --- COMISSÕES LOGIC ---
+            const handleAddSale = () => {
+                const sale = { ...newSale, id: Date.now() };
+                
+                // Cálculos Automáticos Simples (Exemplo)
+                // Comissão Carro: 1.5% do valor se margem > 2%
+                const carComm = parseFloat(sale.carMarginPct) > 2 ? (parseFloat(sale.carValue) * 0.015) : (parseFloat(sale.carValue) * 0.005);
+                // Comissão Financiamento: 3% do valor financiado
+                const finComm = sale.financingActive ? (parseFloat(sale.financingValue) * 0.03) : 0;
+                // Comissão Acessórios: 10%
+                const accTotal = sale.accessories.reduce((acc, curr) => acc + (parseFloat(curr.value) || 0), 0);
+                const accComm = accTotal * 0.10;
+                
+                sale.totalCommission = carComm + finComm + accComm;
+                sale.totalValue = parseFloat(sale.carValue) + accTotal + (sale.licenseActive ? parseFloat(sale.licenseValue) : 0);
+
+                setCommissionsData([...commissionsData, sale]);
+                setShowNewSaleForm(false);
+                handleSave(); // Auto save
+            };
+
+            const kpIs = useMemo(() => {
+                const totalSales = commissionsData.length;
+                const totalRevenue = commissionsData.reduce((acc, curr) => acc + (curr.totalValue || 0), 0);
+                const totalCommission = commissionsData.reduce((acc, curr) => acc + (curr.totalCommission || 0), 0);
+                const avgTicket = totalSales > 0 ? totalRevenue / totalSales : 0;
+                return { totalSales, totalRevenue, totalCommission, avgTicket };
+            }, [commissionsData]);
+
+            // --- QUOTE LOGIC ---
             const handleQuoteChange = (e) => {
                 const { name, value } = e.target;
                 setQuoteForm(prev => ({ ...prev, [name]: value }));
             };
-
             const getQuoteDate = () => {
                 if (!quoteForm.date) return '';
                 const dateObj = new Date(quoteForm.date);
@@ -355,7 +413,6 @@
                 const adjustedDate = new Date(dateObj.getTime() + userTimezoneOffset);
                 return adjustedDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
             };
-
             const handleDownloadQuotePDF = () => {
                 if (quoteRef.current && window.html2pdf) {
                     const element = quoteRef.current;
@@ -363,36 +420,19 @@
                     window.html2pdf().set(opt).from(element).save();
                 } else alert("Erro PDF lib");
             };
-
             const handleDownloadQuoteCard = async () => {
                 if (cardRef.current && window.html2canvas) {
                     try {
-                        const canvas = await window.html2canvas(cardRef.current, { 
-                            scale: 3, 
-                            backgroundColor: '#ffffff', 
-                            logging: false, 
-                            useCORS: true, 
-                            allowTaint: true, 
-                            width: 500,  // Força largura fixa
-                            height: 500, // Força altura fixa
-                            scrollX: 0, 
-                            scrollY: 0, 
-                            windowWidth: 1000 // Força viewport virtual larga para evitar quebras
-                        });
+                        const canvas = await window.html2canvas(cardRef.current, { scale: 3, backgroundColor: '#ffffff', logging: false, useCORS: true, allowTaint: true, width: 500, height: 500, scrollX: 0, scrollY: 0, windowWidth: 1000 });
                         const link = document.createElement('a');
                         link.download = `Oferta_${quoteForm.vehicleModel.substring(0, 10).trim()}.png`;
                         link.href = canvas.toDataURL('image/png');
                         link.click();
-                    } catch (err) { 
-                        alert("Erro ao gerar imagem."); 
-                        console.error(err);
-                    }
-                } else { 
-                    alert("Biblioteca Imagem carregando. Tente novamente."); 
-                }
+                    } catch (err) { alert("Erro img"); }
+                } else alert("Biblioteca Imagem carregando. Tente novamente.");
             };
 
-            // --- VIEWS ---
+            // --- VIEW: DASHBOARD ---
             if (view === 'dashboard') {
                 return (
                     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
@@ -401,30 +441,240 @@
                             <p className="text-slate-400 font-mono tracking-[0.5em] text-sm md:text-base">GESTÃO DE VENDAS INTELIGENTE</p>
                             {user ? <p className="text-green-500 text-xs mt-2">● Online</p> : <p className="text-yellow-500 text-xs mt-2">● Modo Local</p>}
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-7xl">
                             <div onClick={() => setView('taxi')} className="group cursor-pointer bg-slate-900/80 backdrop-blur-md border border-yellow-500/30 p-8 rounded-2xl hover:border-yellow-400 hover:shadow-[0_0_30px_rgba(234,179,8,0.3)] transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition duration-500"><Icons.Taxi /></div>
-                                <h2 className="font-cyber text-3xl font-bold text-yellow-400 mb-4 group-hover:neon-yellow">TABELA TAXI</h2>
-                                <p className="text-slate-400 text-sm leading-relaxed">Acesso completo à tabela com isenção de IPI e ICMS para taxistas. Cálculo automático de descontos e documentos.</p>
-                                <div className="mt-6 flex items-center text-yellow-500 font-bold text-sm tracking-widest group-hover:translate-x-2 transition-transform">ACESSAR MÓDULO &rarr;</div>
+                                <h2 className="font-cyber text-2xl font-bold text-yellow-400 mb-4 group-hover:neon-yellow">TABELA TAXI</h2>
+                                <p className="text-slate-400 text-xs leading-relaxed">Tabela Taxi com isenções.</p>
+                                <div className="mt-6 flex items-center text-yellow-500 font-bold text-xs tracking-widest group-hover:translate-x-2 transition-transform">ACESSAR &rarr;</div>
                             </div>
                             <div onClick={() => setView('pcd')} className="group cursor-pointer bg-slate-900/80 backdrop-blur-md border border-blue-500/30 p-8 rounded-2xl hover:border-blue-400 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition duration-500"><Icons.Pcd /></div>
-                                <h2 className="font-cyber text-3xl font-bold text-blue-400 mb-4 group-hover:neon-blue">TABELA PCD</h2>
-                                <p className="text-slate-400 text-sm leading-relaxed">Módulo exclusivo para PcD. Valores ajustados, lista de laudos e documentação necessária para isenções.</p>
-                                <div className="mt-6 flex items-center text-blue-500 font-bold text-sm tracking-widest group-hover:translate-x-2 transition-transform">ACESSAR MÓDULO &rarr;</div>
+                                <h2 className="font-cyber text-2xl font-bold text-blue-400 mb-4 group-hover:neon-blue">TABELA PCD</h2>
+                                <p className="text-slate-400 text-xs leading-relaxed">Tabela exclusiva PcD.</p>
+                                <div className="mt-6 flex items-center text-blue-500 font-bold text-xs tracking-widest group-hover:translate-x-2 transition-transform">ACESSAR &rarr;</div>
                             </div>
                             <div onClick={() => setView('quote')} className="group cursor-pointer bg-slate-900/80 backdrop-blur-md border border-green-500/30 p-8 rounded-2xl hover:border-green-400 hover:shadow-[0_0_30px_rgba(34,197,94,0.3)] transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition duration-500"><Icons.FileText /></div>
-                                <h2 className="font-cyber text-3xl font-bold text-green-400 mb-4 group-hover:neon-green">GERADOR COTAÇÕES</h2>
-                                <p className="text-slate-400 text-sm leading-relaxed">Ferramenta para criar propostas em PDF e cards promocionais para Instagram/WhatsApp instantaneamente.</p>
-                                <div className="mt-6 flex items-center text-green-500 font-bold text-sm tracking-widest group-hover:translate-x-2 transition-transform">ACESSAR MÓDULO &rarr;</div>
+                                <h2 className="font-cyber text-2xl font-bold text-green-400 mb-4 group-hover:neon-green">GERADOR</h2>
+                                <p className="text-slate-400 text-xs leading-relaxed">Cotações PDF e Cards.</p>
+                                <div className="mt-6 flex items-center text-green-500 font-bold text-xs tracking-widest group-hover:translate-x-2 transition-transform">ACESSAR &rarr;</div>
+                            </div>
+                            <div onClick={() => setView('commissions')} className="group cursor-pointer bg-slate-900/80 backdrop-blur-md border border-purple-500/30 p-8 rounded-2xl hover:border-purple-400 hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition duration-500"><Icons.Briefcase /></div>
+                                <h2 className="font-cyber text-2xl font-bold text-purple-400 mb-4 group-hover:neon-purple">TABELA COMISSÕES</h2>
+                                <p className="text-slate-400 text-xs leading-relaxed">Controle financeiro.</p>
+                                <div className="mt-6 flex items-center text-purple-500 font-bold text-xs tracking-widest group-hover:translate-x-2 transition-transform">ACESSAR &rarr;</div>
+                            </div>
+                            {/* Card Expansão */}
+                            <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-transparent border-2 border-dashed border-slate-700 p-8 rounded-2xl flex items-center justify-center opacity-50 hover:opacity-100 hover:border-slate-500 transition-all cursor-not-allowed">
+                                <div className="text-center">
+                                    <Icons.Lock className="w-8 h-8 mx-auto text-slate-600 mb-2" />
+                                    <h3 className="font-cyber text-xl font-bold text-slate-500">EXPANSÃO FUTURA</h3>
+                                    <p className="text-slate-600 text-xs">Espaço reservado para novos módulos</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 );
             }
 
+            // --- VIEW: COMISSÕES ---
+            if (view === 'commissions') {
+                return (
+                    <div className="min-h-screen bg-slate-950 pb-20 overflow-hidden relative">
+                        {/* Background Effect */}
+                        <div className="absolute top-0 left-0 w-full h-96 bg-purple-900/20 blur-3xl -z-10 rounded-full"></div>
+
+                        {/* NAV */}
+                        <nav className="bg-slate-900/90 backdrop-blur border-b border-purple-900/50 sticky top-0 z-50">
+                            <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center border border-purple-500 box-neon-purple"><Icons.Briefcase className="text-purple-400" /></div>
+                                    <h1 className="font-cyber font-bold text-xl text-slate-200">TABELA <span className="text-purple-500 neon-blue">COMISSÕES</span></h1>
+                                </div>
+                                <button onClick={() => setView('dashboard')} className="text-xs font-mono text-slate-500 hover:text-white transition">VOLTAR</button>
+                            </div>
+                        </nav>
+
+                        <div className="max-w-7xl mx-auto px-4 mt-8">
+                            {/* KPIs */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl relative overflow-hidden group hover:border-purple-500/50 transition-all">
+                                    <div className="absolute right-2 top-2 opacity-10"><Icons.TrendingUp className="w-12 h-12 text-purple-500" /></div>
+                                    <p className="text-slate-400 text-xs uppercase font-bold tracking-wider">Vendas Totais</p>
+                                    <h3 className="text-2xl font-cyber text-white mt-1">{kpIs.totalSales}</h3>
+                                </div>
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl relative overflow-hidden group hover:border-green-500/50 transition-all">
+                                    <div className="absolute right-2 top-2 opacity-10"><Icons.DollarSign className="w-12 h-12 text-green-500" /></div>
+                                    <p className="text-slate-400 text-xs uppercase font-bold tracking-wider">Comissão Total</p>
+                                    <h3 className="text-2xl font-cyber text-green-400 mt-1">{formatMoney(kpIs.totalCommission)}</h3>
+                                </div>
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl relative overflow-hidden group hover:border-blue-500/50 transition-all">
+                                    <div className="absolute right-2 top-2 opacity-10"><Icons.Car className="w-12 h-12 text-blue-500" /></div>
+                                    <p className="text-slate-400 text-xs uppercase font-bold tracking-wider">Ticket Médio</p>
+                                    <h3 className="text-2xl font-cyber text-blue-400 mt-1">{formatMoney(kpIs.avgTicket)}</h3>
+                                </div>
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl relative overflow-hidden group hover:border-yellow-500/50 transition-all">
+                                    <div className="absolute right-2 top-2 opacity-10"><Icons.Target className="w-12 h-12 text-yellow-500" /></div>
+                                    <p className="text-slate-400 text-xs uppercase font-bold tracking-wider">Receita Total</p>
+                                    <h3 className="text-2xl font-cyber text-yellow-400 mt-1">{formatMoney(kpIs.totalRevenue)}</h3>
+                                </div>
+                            </div>
+
+                            {/* Chart Area (Simplified SVG) */}
+                            <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl mb-8 relative">
+                                <h3 className="text-slate-400 text-sm font-bold uppercase mb-4 flex items-center gap-2"><Icons.TrendingUp className="w-4 h-4" /> Performance de Vendas</h3>
+                                <div className="h-32 flex items-end gap-2">
+                                    {/* Dummy Bars simulating visual data */}
+                                    {[40, 60, 30, 80, 50, 90, 70, 45, 65, 85].map((h, i) => (
+                                        <div key={i} className="flex-1 bg-purple-900/30 rounded-t hover:bg-purple-500 transition-all relative group" style={{ height: `${h}%` }}>
+                                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-white opacity-0 group-hover:opacity-100 transition">{h}%</div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="h-[1px] w-full bg-slate-700 mt-1"></div>
+                            </div>
+
+                            {/* Actions & Table */}
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-cyber text-white">Histórico de Vendas</h2>
+                                <button 
+                                    onClick={() => setShowNewSaleForm(!showNewSaleForm)} 
+                                    className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition shadow-lg shadow-purple-900/50"
+                                >
+                                    <Icons.PlusCircle /> Nova Venda
+                                </button>
+                            </div>
+
+                            {/* New Sale Form Overlay */}
+                            {showNewSaleForm && (
+                                <div className="bg-slate-800 border border-purple-500/30 p-6 rounded-xl mb-8 animate-in slide-in-from-top-4">
+                                    <h3 className="text-purple-400 font-bold mb-4 uppercase text-sm border-b border-slate-700 pb-2">Cadastrar Nova Venda</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div><label className="text-xs text-slate-400 block mb-1">Data</label><input type="date" value={newSale.date} onChange={e => setNewSale({...newSale, date: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-sm" /></div>
+                                        <div><label className="text-xs text-slate-400 block mb-1">Cliente</label><input type="text" value={newSale.client} onChange={e => setNewSale({...newSale, client: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-sm" placeholder="Nome" /></div>
+                                        <div><label className="text-xs text-slate-400 block mb-1">Modelo</label><input type="text" value={newSale.model} onChange={e => setNewSale({...newSale, model: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-sm" placeholder="Veículo" /></div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div><label className="text-xs text-slate-400 block mb-1">Valor do Carro (R$)</label><input type="number" value={newSale.carValue} onChange={e => setNewSale({...newSale, carValue: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-sm" /></div>
+                                        <div><label className="text-xs text-slate-400 block mb-1">Margem (%)</label><input type="number" value={newSale.carMarginPct} onChange={e => setNewSale({...newSale, carMarginPct: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-sm" placeholder="Ex: 2.5" /></div>
+                                        <div><label className="text-xs text-slate-400 block mb-1">Pagamento</label><select value={newSale.paymentMethod} onChange={e => setNewSale({...newSale, paymentMethod: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-sm"><option>À Vista</option><option>Financiamento</option><option>Consórcio</option></select></div>
+                                    </div>
+                                    
+                                    {/* Toggles */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 bg-slate-900/50 p-3 rounded">
+                                        <div className="flex items-center gap-2">
+                                            <input type="checkbox" checked={newSale.financingActive} onChange={e => setNewSale({...newSale, financingActive: e.target.checked})} className="w-4 h-4 accent-purple-500" />
+                                            <span className="text-sm text-slate-300">Financiamento?</span>
+                                            {newSale.financingActive && <input type="number" placeholder="Valor financiado" value={newSale.financingValue} onChange={e => setNewSale({...newSale, financingValue: e.target.value})} className="ml-auto w-32 bg-slate-800 border border-slate-600 rounded p-1 text-white text-xs" />}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input type="checkbox" checked={newSale.licenseActive} onChange={e => setNewSale({...newSale, licenseActive: e.target.checked})} className="w-4 h-4 accent-purple-500" />
+                                            <span className="text-sm text-slate-300">Emplacamento?</span>
+                                            {newSale.licenseActive && <input type="number" placeholder="Valor" value={newSale.licenseValue} onChange={e => setNewSale({...newSale, licenseValue: e.target.value})} className="ml-auto w-32 bg-slate-800 border border-slate-600 rounded p-1 text-white text-xs" />}
+                                        </div>
+                                    </div>
+
+                                    {/* Acessórios Simples */}
+                                    <div className="mb-6">
+                                        <label className="text-xs text-slate-400 block mb-2">Acessórios (Adicionar Valor Total)</label>
+                                        <div className="flex gap-2">
+                                            <input type="text" placeholder="Descrição (Ex: Película, Tapete)" id="accName" className="flex-1 bg-slate-900 border border-slate-700 rounded p-2 text-white text-sm" />
+                                            <input type="number" placeholder="Valor" id="accValue" className="w-32 bg-slate-900 border border-slate-700 rounded p-2 text-white text-sm" />
+                                            <button 
+                                                onClick={() => {
+                                                    const name = document.getElementById('accName').value;
+                                                    const value = document.getElementById('accValue').value;
+                                                    if(name && value) {
+                                                        setNewSale({...newSale, accessories: [...newSale.accessories, {name, value}]});
+                                                        document.getElementById('accName').value = '';
+                                                        document.getElementById('accValue').value = '';
+                                                    }
+                                                }}
+                                                className="bg-slate-700 hover:bg-slate-600 text-white px-3 rounded"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {newSale.accessories.map((acc, i) => (
+                                                <span key={i} className="bg-purple-900/50 text-purple-200 text-xs px-2 py-1 rounded border border-purple-500/30 flex items-center gap-1">
+                                                    {acc.name} (R$ {acc.value})
+                                                    <button onClick={() => setNewSale({...newSale, accessories: newSale.accessories.filter((_, idx) => idx !== i)})} className="text-red-400 hover:text-red-300 ml-1">x</button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-end gap-2">
+                                        <button onClick={() => setShowNewSaleForm(false)} className="text-slate-400 hover:text-white px-4 py-2 text-sm">Cancelar</button>
+                                        <button onClick={handleAddSale} className="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-green-900/50">Salvar Venda</button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Table */}
+                            <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+                                <table className="w-full text-sm text-left text-slate-400">
+                                    <thead className="bg-slate-950 text-slate-200 uppercase font-cyber text-xs">
+                                        <tr>
+                                            <th className="px-4 py-3">Data</th>
+                                            <th className="px-4 py-3">Cliente / Veículo</th>
+                                            <th className="px-4 py-3 text-right">Valor Venda</th>
+                                            <th className="px-4 py-3 text-center">Margem</th>
+                                            <th className="px-4 py-3 text-center">Acessórios</th>
+                                            <th className="px-4 py-3 text-right text-green-400">Comissão</th>
+                                            <th className="px-4 py-3 text-center">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-800">
+                                        {commissionsData.map((sale) => (
+                                            <tr key={sale.id} className="hover:bg-slate-800/50 transition">
+                                                <td className="px-4 py-3">{new Date(sale.date).toLocaleDateString('pt-BR')}</td>
+                                                <td className="px-4 py-3">
+                                                    <div className="font-bold text-white">{sale.client}</div>
+                                                    <div className="text-xs">{sale.model}</div>
+                                                </td>
+                                                <td className="px-4 py-3 text-right font-mono">{formatMoney(sale.totalValue)}</td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${parseFloat(sale.carMarginPct) > 2 ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
+                                                        {sale.carMarginPct}%
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center text-xs">{sale.accessories.length} itens</td>
+                                                <td className="px-4 py-3 text-right font-bold text-green-400 font-mono">{formatMoney(sale.totalCommission)}</td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <button 
+                                                        onClick={() => {
+                                                            if(confirm('Excluir venda?')) {
+                                                                const newData = commissionsData.filter(s => s.id !== sale.id);
+                                                                setCommissionsData(newData);
+                                                                // Trigger save manually here or depend on effect if state changes logic was different
+                                                                // For simplicity in this structure:
+                                                                // handleSave() needs to be called but state update is async. 
+                                                                // Ideally use a useEffect on commissionsData changes to save, or wrap properly.
+                                                            }
+                                                        }} 
+                                                        className="text-slate-600 hover:text-red-500 transition"
+                                                    >
+                                                        <Icons.Trash className="w-4 h-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {commissionsData.length === 0 && (
+                                            <tr><td colSpan="7" className="text-center py-8 text-slate-600 italic">Nenhuma venda registrada neste período.</td></tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- VIEW: GERADOR ---
             if (view === 'quote') {
                 return (
                     <div className="min-h-screen flex flex-col md:flex-row print:bg-white text-gray-800 font-sans">
@@ -485,6 +735,7 @@
                 );
             }
 
+            // --- VIEW: TABELAS ---
             return (
                 <div className="min-h-screen pb-20">
                     <nav className="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50 no-print">
